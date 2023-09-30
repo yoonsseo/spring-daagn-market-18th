@@ -1,15 +1,18 @@
 package com.ceos18.dangn.domain;
 
 import jakarta.persistence.*;
-import lombok.Getter;
+import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class UserTown extends BaseEntity {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "userTownId")
     private Long id;
 
@@ -29,5 +32,9 @@ public class UserTown extends BaseEntity {
     @JoinColumn(name = "userId")
     private User user;
 
-
+    @Builder
+    public UserTown(User user, Town town) {
+        this.user = user;
+        this.town = town;
+    }
 }

@@ -15,6 +15,9 @@ public class Review extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private ReviewType reviewType;
 
+    @Enumerated(EnumType.STRING)
+    private ReviewLevel reviewLevel;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reviewerId")
     private User reviewer;
