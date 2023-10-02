@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 public class UserTown extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "userTownId")
+    @Column(name = "user_town_id")
     private Long id;
 
     @ColumnDefault("2")
@@ -25,11 +25,11 @@ public class UserTown extends BaseEntity {
     private boolean isTownAuth;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "townId")
+    @JoinColumn(name = "town_id")
     private Town town;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "userId")
+    @JoinColumn(name = "user_id")
     private User user;
 
     @Builder

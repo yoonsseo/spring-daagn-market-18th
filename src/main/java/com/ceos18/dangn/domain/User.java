@@ -11,7 +11,7 @@ import org.hibernate.annotations.ColumnDefault;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends BaseEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "userId")
+    @Column(name = "user_id")
     private Long id;
 
     @NotNull

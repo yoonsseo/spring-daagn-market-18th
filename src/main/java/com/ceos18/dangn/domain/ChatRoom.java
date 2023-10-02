@@ -7,19 +7,19 @@ import lombok.Getter;
 @Getter
 public class ChatRoom extends BaseEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "chatRoomId")
+    @Column(name = "chat_room_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "postId")
+    @JoinColumn(name = "post_id")
     private Post post;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sellerId")
+    @JoinColumn(name = "seller_id")
     private User seller;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "buyerId")
+    @JoinColumn(name = "buyer_id")
     private User buyer;
 
 

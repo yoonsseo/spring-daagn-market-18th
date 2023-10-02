@@ -7,7 +7,7 @@ import lombok.Getter;
 @Getter
 public class Chat extends BaseEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "chatId")
+    @Column(name = "chat_id")
     private Long id;
 
     private String content;
@@ -16,14 +16,14 @@ public class Chat extends BaseEntity {
     private boolean isRead;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "chatRoomId")
+    @JoinColumn(name = "chat_room_id")
     private ChatRoom chatRoom;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "senderId")
+    @JoinColumn(name = "sender_id")
     private User sender;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "receiverId")
+    @JoinColumn(name = "receiver_id")
     private User receiver;
 }

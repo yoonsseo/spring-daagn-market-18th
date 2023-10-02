@@ -7,7 +7,7 @@ import lombok.Getter;
 @Getter
 public class Review extends BaseEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "reviewId")
+    @Column(name = "review_id")
     private Long id;
 
     private String content;
@@ -19,14 +19,14 @@ public class Review extends BaseEntity {
     private ReviewLevel reviewLevel;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "reviewerId")
+    @JoinColumn(name = "reviewer_id")
     private User reviewer;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "revieweeId")
+    @JoinColumn(name = "reviewee_id")
     private User reviewee;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "postId")
+    @JoinColumn(name = "post_id")
     private Post post;
 }

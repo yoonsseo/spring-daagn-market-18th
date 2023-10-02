@@ -9,7 +9,7 @@ import org.hibernate.annotations.ColumnDefault;
 @Getter
 public class Post extends BaseEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "postId")
+    @Column(name = "post_id")
     private Long id;
 
     @NotNull
@@ -43,11 +43,11 @@ public class Post extends BaseEntity {
     private PostStatus postStatus;
 
     //카테고리는 필수
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "categoryId")
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
     private Category category;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sellerId")
+    @JoinColumn(name = "seller_id")
     private User seller;
 }
