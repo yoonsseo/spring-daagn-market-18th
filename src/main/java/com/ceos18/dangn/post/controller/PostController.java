@@ -31,4 +31,8 @@ public class PostController {
         return postService.getPostList(pageable);
     }
 
+    @GetMapping("/{postId}")
+    public PostResponseDto getPost(@PathVariable Long postId) {
+        return postService.getPost(postId);
+    }
 }

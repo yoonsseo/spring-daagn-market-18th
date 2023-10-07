@@ -3,16 +3,25 @@ package com.ceos18.dangn.post.service;
 import com.ceos18.dangn.domain.Category;
 import com.ceos18.dangn.domain.Post;
 import com.ceos18.dangn.domain.TradeMethod;
+import com.ceos18.dangn.domain.UserTown;
 import com.ceos18.dangn.post.dto.PostDto;
 import com.ceos18.dangn.post.dto.PostListResponseDto;
+import com.ceos18.dangn.post.dto.PostResponseDto;
 import com.ceos18.dangn.post.dto.RegisterPostRequestDto;
 import com.ceos18.dangn.repository.CategoryRepository;
 import com.ceos18.dangn.repository.PostRepository;
+import com.ceos18.dangn.repository.TownRepository;
+import com.ceos18.dangn.repository.UserTownRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +29,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class PostService {
     private final PostRepository postRepository;
     private final CategoryRepository categoryRepository;
+    private final UserTownRepository userTownRepository;
+    private final TownRepository townRepository;
 
     public Long registerPost(RegisterPostRequestDto requestDto) {
         Post post = requestDto.toEntity();
@@ -51,5 +62,23 @@ public class PostService {
         Page<PostDto> postDtos = findPosts.map(PostDto::new);
 
         return new PostListResponseDto(postDtos.getTotalPages(), postDtos.getNumber(), postDtos.getContent());
+    }
+
+    public PostResponseDto getPost(Long postId) {
+        Optional<Post> findPost = postRepository.findById(postId);
+        if (findPost.isPresent()) {
+            //조회수 올려주기!
+            postRepository.updateView(postId);
+
+            Post post = findPost.get();
+
+            //편의상 첫 번째 주소로 가정..
+            String sellerTown = userTownRepository.findByUser(post.getSeller()).get(0).getTown().getTownName();
+
+            return new PostResponseDto(postId, post, sellerTown);
+        }
+        else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "게시물 없음");
+        }
     }
 }
