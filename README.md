@@ -220,3 +220,48 @@ assertThat(테스트 타겟).메소드1().메소드2().메소드3();
 
 ![image](https://github.com/yoonsseo/spring_core/assets/90557277/8a0501c2-8cee-4100-be0d-52fe66749204)
 
+## 📤 API 🔌📡
+### 📬 게시글 등록 API
+##### API 명세서
+![게시글 등록 API 명세서 ](https://github.com/yoonsseo/spring_core/assets/90557277/0734dbbf-f679-4774-b375-ef3eafb80be2)
+##### 로직
+```java
+    public Long registerPost(RegisterPostRequestDto requestDto) {
+        //로그인된 유저의 올바른 정보가 넘어온다고 가정
+        User seller = userRepository.findById(requestDto.getUser_id()).get();
+
+        Post post = requestDto.toEntity(seller);
+
+        TradeMethod tradeMethod = TradeMethod.valueOf(requestDto.getTradeMethod());
+        post.setTradeMethod(tradeMethod);
+
+        Category category = categoryRepository.findByName(requestDto.getCategory());
+        post.setCategory(category);
+
+        postRepository.save(post);
+
+        return post.getId();
+    }
+```
+1. RequestBody로 사용자 정보 및 게시글 등록에 필요한 정보 받기  
+   `부득이하게 사용자 정보도 RequestBody로 받음`
+2. `RegisterPostRequestDto` - `toEntity` 메소드 : DTO로 받은 정보 Post Entity로 바꿔주기  
+  연관 관계를 위해 userId로 User Entity 찾아서 사용자 정보만 따로 넘겨준다
+   ```java
+    public Post toEntity(User seller) {
+        return Post.builder()
+                .seller(seller)
+                .thumbnail(thumbnail)
+                .title(title)
+                .price(price)
+                .isPriceOffer(isPriceOffer)
+                .description(description)
+                .wishPlace(wishPlace)
+                .townRange(townRange)
+                .build();
+    }
+   ```
+3. TradeMethod 거래하기/나눔하기의 거래방식은 String으로 넘어오는데 Enum값으로 설정되어 있기 때문에 따로 설정해준다  
+   카테고리도 String으로 넘어오기 때문에 `CategoryRepository`에서 엔티티 찾아서 연관 관계 설정해주기
+4. 그리고 save 해주고 일단 Service에서는 postId 리턴해주었당 Controller에서는 ok 이름이 뭐더라
+
