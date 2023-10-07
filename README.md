@@ -223,7 +223,7 @@ assertThat(테스트 타겟).메소드1().메소드2().메소드3();
 ## 📤 API 🔌📡
 ### 📬 게시글 등록 API
 ##### API 명세서
-![게시글 등록 API](https://github.com/yoonsseo/spring_core/assets/90557277/93e4c13d-2b3a-4e9b-aa8b-603a1bc9e4fe)
+![게시글 등록 API 명세서](https://github.com/yoonsseo/spring_core/assets/90557277/9c4e4136-43a1-4ba0-9eb8-ce102e92d79c)
 ##### 로직
 ```java
     public Long registerPost(RegisterPostRequestDto requestDto) {
@@ -263,7 +263,7 @@ assertThat(테스트 타겟).메소드1().메소드2().메소드3();
    ```
 3. TradeMethod 거래하기/나눔하기의 거래방식은 String으로 넘어오는데 Enum값으로 설정되어 있기 때문에 따로 설정해준다  
    카테고리도 String으로 넘어오기 때문에 `CategoryRepository`에서 엔티티 찾아서 연관 관계 설정해주기
-4. 그리고 save 해주고 일단 Service에서는 postId 리턴해주었당 Controller에서는 ok 이름이 뭐더라
+4. 그리고 save 해주고 일단 Service에서는 postId 리턴해주었당 Controller에서는 ok 반환 
 
 ### 🗂️ 모든 게시글 조회 API
 ![모든 게시글](https://github.com/yoonsseo/spring_core/assets/90557277/a89a52e0-3f41-4ea8-8043-d7fb10c0adfc)
@@ -284,7 +284,7 @@ assertThat(테스트 타겟).메소드1().메소드2().메소드3();
 ```java
 @Transactional(readOnly = true)
 public PostListResponseDto getPostList(Pageable pageable) {
-    Page<Post> findPosts = postRepository.findAll(pageable);
+    Page<Post> findPosts = postRepository.findByIsDel(false, pageable);
 
     Page<PostDto> postDtos = findPosts.map(post -> new PostDto(post,
     chatRoomRepository.getTotalChatRoom(post),
@@ -294,12 +294,15 @@ public PostListResponseDto getPostList(Pageable pageable) {
     return new PostListResponseDto(postDtos.getTotalPages(), postDtos.getNumber(), postDtos.getContent());
     }
 ```
-1. 현재 사용자의 동네로 설정된 근처 동네의 결과만 가져오는 방법은 적용하지 못했다  
-  그냥 정렬 조건을 modifiedAt의 ASC 순서로 Page 객체 생성  
+1. 현재 사용자의 동네로 설정된 근처 동네의 결과만 가져오는 방법은 적용하지 못했다 
+   ```java
+    Page<Post> findByIsDel(boolean isDel, Pageable pageable);
+   ```
+  그냥 정렬 조건을 modifiedAt의 ASC 순서로 Page 객체 생성 + 삭제 여부 확인 
    무한스크롤로 구현이 되어있는데, 잘 모르겠지만 프론트 측에서 스크롤 이벤트가 일어나거나 하는 상황에  
    벡으로 다음 페이지 번호로 요청하면, 일정 개수의 게시물 정보가 담긴 다음 페이지 반환   
    잘 모르겠지만 무한스크롤 형식이든 게시판 형식이든 그것은 프론트가 해야하는 일이 아닐까..? →
-2. `findAll`로 찾아온 게시물들에서 map으로 각 게시물 하나씩의 정보를 담은 `PostDto` 생성
+2. 찾아온 게시물들에서 map으로 각 게시물 하나씩의 정보를 담은 `PostDto` 생성
     * post Entity 자체를 넘겨서 각 정보 뽑고,
     ```java
     @Query("SELECT COALESCE(COUNT(cr.id), 0) FROM ChatRoom cr WHERE cr.post = :post")
@@ -322,7 +325,7 @@ public PostListResponseDto getPostList(Pageable pageable) {
 ```java
 public PostResponseDto getPost(Long postId) {
    Optional<Post> findPost = postRepository.findById(postId);
-   if (findPost.isPresent()) {
+   if (findPost.isPresent() && !findPost.get().isDel()) {
        //조회수 올려주기!
        postRepository.updateView(postId);
 
@@ -338,7 +341,7 @@ public PostResponseDto getPost(Long postId) {
    }
 ```
 1. @PathVariable로 받아온 `postId`를 이용해 `postRepository`에서 게시물 찾기
-2. 게시물이 있으면 해당 게시물의 조회수 올려주기
+2. 게시물이 있으면 해당 게시물의 조회수 올려주기 + 삭제되지 않았으면! 
    ```java
     @Modifying
     @Query("UPDATE Post p set p.view = p.view + 1 where p.id = :postId")
@@ -365,4 +368,22 @@ public PostResponseDto getPost(Long postId) {
     }
    ```
 4. 게시물이 없으면 `404` 반환 
-   
+
+### ❌ 특정 게시글 삭제 API
+#### API 명세서
+![특정 게시글 삭제 API 명세서](https://github.com/yoonsseo/spring_core/assets/90557277/3dbcb306-e4a5-4b45-b060-289d484090c9)
+#### 로직
+```java
+    public void deletePost(Long postId) {
+        postRepository.deletePost(postId);
+    }
+```
+* Post Entity에 `isDel` 컬럼 추가  
+   DB에서 물리적으로 삭제하는 것이 아니라 `isDel` 컬럼을 이용해 논리적으로 삭제하는 로직으로 구현  
+   Post Entity는 리뷰, 채팅방, 그리고 구현하지 않았지만 위시리스트 등  
+   여러 엔티티와 연결되어 있기 때문에 논리적으로 삭제하는 것이 낫다고 판당
+   ```java
+    @Modifying
+    @Query("UPDATE Post p SET p.isDel = true WHERE p.id = :postId")
+    void deletePost(@Param("postId") Long postId);
+   ```
