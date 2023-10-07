@@ -291,12 +291,12 @@ public PostListResponseDto getPostList(Pageable pageable) {
     Page<Post> findPosts = postRepository.findByIsDel(false, pageable);
 
     Page<PostDto> postDtos = findPosts.map(post -> new PostDto(post,
-    chatRoomRepository.getTotalChatRoom(post),
-    userTownRepository.findByUser(post.getSeller()).get(0).getTown().getTownName()));
-    //편의상 첫 번째 주소로 가정
+        chatRoomRepository.getTotalChatRoom(post),
+        userTownRepository.findByUser(post.getSeller()).get(0).getTown().getTownName()));
+        //편의상 첫 번째 주소로 가정
 
     return new PostListResponseDto(postDtos.getTotalPages(), postDtos.getNumber(), postDtos.getContent());
-    }
+}
 ```
 1. 현재 사용자의 동네로 설정된 근처 동네의 결과만 가져오는 방법은 적용하지 못했다 
    ```java
@@ -319,7 +319,7 @@ public PostListResponseDto getPostList(Pageable pageable) {
 3. 마지막으로 `PostListResponseDto`에 Page 객체가 제공해주는 메소드를 사용해  
    전체 페이지 수와, 현재 페이지 수,  
    그리고 각 게시물 정보의 리스트를 담아서 ResponseBody로 반환     
-   에 위시리스트 까먹었다 
+   위시리스트 없다   
 ##### MySQL
 ![모든 게시글 조회 DB](https://github.com/yoonsseo/spring_core/assets/90557277/c6b863a9-82d0-4fa6-afe1-79c4f8f7061c)   
 ##### 포스트맨
@@ -344,11 +344,12 @@ public PostResponseDto getPost(Long postId) {
        //편의상 첫 번째 주소로 가정..
        String sellerTown = userTownRepository.findByUser(post.getSeller()).get(0).getTown().getTownName();
 
-        return new PostDetailResponseDto(postId, post, sellerTown, chatRoomRepository.getTotalChatRoom(post));
+       return new PostDetailResponseDto(postId, post, sellerTown, chatRoomRepository.getTotalChatRoom(post));
    }
    else {
        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 게시물 요청");
    }
+}
 ```
 1. @PathVariable로 받아온 `postId`를 이용해 `postRepository`에서 게시물 찾기
 2. 게시물이 있으면 해당 게시물의 조회수 올려주기 + 삭제되지 않았으면! 
@@ -405,7 +406,7 @@ public PostResponseDto getPost(Long postId) {
 ##### 포스트맨 
 ![특정 게시글 삭제 포스트맨](https://github.com/yoonsseo/spring_core/assets/90557277/10ed86f9-755c-46d1-9212-2478906666d2)   
 ![삭제된 특정 게시글 조회2](https://github.com/yoonsseo/spring_core/assets/90557277/f232d006-d85d-4993-bf5d-b76234f850b4)   
-삭제 후 다시 조회하려고 하면 조회할 수 없음
+삭제 후 다시 조회하려고 하면 조회할 수 없음!!  
 ##### MySQL
 ![삭제 후 DB](https://github.com/yoonsseo/spring_core/assets/90557277/c75fe643-223b-455c-83cc-7bf3d55fd01a)   
 DB에도 잘 반영되어 있음😆😆
