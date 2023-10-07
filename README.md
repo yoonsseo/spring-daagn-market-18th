@@ -218,12 +218,12 @@ assertThat(actual).isEqualTo(expected)
 assertThat(테스트 타겟).메소드1().메소드2().메소드3();
 ```
 
-![image](https://github.com/yoonsseo/spring_core/assets/90557277/8a0501c2-8cee-4100-be0d-52fe66749204)
+![image](https://github.com/yoonsseo/spring_core/assets/90557277/8a0501c2-8cee-4100-be0d-52fe66749204)   
 
 ## 📤 API 🔌📡
 ### 📬 게시글 등록 API
 ##### API 명세서
-![게시글 등록 API 명세서](https://github.com/yoonsseo/spring_core/assets/90557277/9c4e4136-43a1-4ba0-9eb8-ce102e92d79c)
+![게시글 등록 API 명세서](https://github.com/yoonsseo/spring_core/assets/90557277/9c4e4136-43a1-4ba0-9eb8-ce102e92d79c)   
 ##### 로직
 ```java
     public Long registerPost(RegisterPostRequestDto requestDto) {
@@ -265,14 +265,14 @@ assertThat(테스트 타겟).메소드1().메소드2().메소드3();
    카테고리도 String으로 넘어오기 때문에 `CategoryRepository`에서 엔티티 찾아서 연관 관계 설정해주기
 4. 그리고 save 해주고 일단 Service에서는 postId 리턴해주었당 Controller에서는 ok 반환
 ##### 포스트맨
-![게시글 등록 포스트맨](https://github.com/yoonsseo/spring_core/assets/90557277/1dfec823-68c5-4346-8da2-19cd0f3c4bd0)
+![게시글 등록 포스트맨](https://github.com/yoonsseo/spring_core/assets/90557277/1dfec823-68c5-4346-8da2-19cd0f3c4bd0)   
 ##### MySQL
-![게시글 등록 DB](https://github.com/yoonsseo/spring_core/assets/90557277/e55c19e6-f854-4037-a725-73600c951f2a)
+![게시글 등록 DB](https://github.com/yoonsseo/spring_core/assets/90557277/e55c19e6-f854-4037-a725-73600c951f2a)   
 
 ### 🗂️ 모든 게시글 조회 API
-![모든 게시글](https://github.com/yoonsseo/spring_core/assets/90557277/a89a52e0-3f41-4ea8-8043-d7fb10c0adfc)
+![모든 게시글](https://github.com/yoonsseo/spring_core/assets/90557277/a89a52e0-3f41-4ea8-8043-d7fb10c0adfc)   
 ##### API 명세서
-![모든 게시글 조회 API](https://github.com/yoonsseo/spring_core/assets/90557277/73d544fc-4f9b-48b5-acbe-7fdee41251ce)
+![모든 게시글 조회 API](https://github.com/yoonsseo/spring_core/assets/90557277/73d544fc-4f9b-48b5-acbe-7fdee41251ce)   
 
 ##### 🤯 고민
 1. 정렬조건이 최신순이 아닌 것 같긴 한데 우선 Pageable 적용한 findAll로 갱신순으로 가져오려고 했다
@@ -321,16 +321,16 @@ public PostListResponseDto getPostList(Pageable pageable) {
    그리고 각 게시물 정보의 리스트를 담아서 ResponseBody로 반환     
    에 위시리스트 까먹었다 
 ##### MySQL
-![모든 게시글 조회 DB](https://github.com/yoonsseo/spring_core/assets/90557277/c6b863a9-82d0-4fa6-afe1-79c4f8f7061c)
+![모든 게시글 조회 DB](https://github.com/yoonsseo/spring_core/assets/90557277/c6b863a9-82d0-4fa6-afe1-79c4f8f7061c)   
 ##### 포스트맨
-![모든 게시글 조회 포스트맨](https://github.com/yoonsseo/spring_core/assets/90557277/8e8d9beb-0188-4643-b6be-52fcb32b2f5d)
-![모든 게시글 조회2](https://github.com/yoonsseo/spring_core/assets/90557277/a45f73a0-9944-47c9-90b6-e6a201d3cf32)
+![모든 게시글 조회 포스트맨](https://github.com/yoonsseo/spring_core/assets/90557277/8e8d9beb-0188-4643-b6be-52fcb32b2f5d)   
+![모든 게시글 조회2](https://github.com/yoonsseo/spring_core/assets/90557277/a45f73a0-9944-47c9-90b6-e6a201d3cf32)   
 3번 게시글은 isDel=1로 삭제된 게시글이라 나타나지 않는당👏🏻👏🏻
 
 ### 🔍 특정 게시글 조회 API - 검색할까 상세할까 고민 중
-![게시물 상세](https://github.com/yoonsseo/spring_core/assets/90557277/e976f78c-fe94-40ad-9bca-4de77e000400)
+![게시물 상세](https://github.com/yoonsseo/spring_core/assets/90557277/e976f78c-fe94-40ad-9bca-4de77e000400)   
 ##### API 명세서
-![특정 게시글 조회 API 명세서](https://github.com/yoonsseo/spring_core/assets/90557277/d4eecce6-2cb4-4566-a963-47bbcbcac4a5) 
+![특정 게시글 조회 API 명세서](https://github.com/yoonsseo/spring_core/assets/90557277/d4eecce6-2cb4-4566-a963-47bbcbcac4a5)    
 ##### 로직
 ```java
 public PostResponseDto getPost(Long postId) {
@@ -379,14 +379,14 @@ public PostResponseDto getPost(Long postId) {
    ```
 4. 게시물이 없으면 `404` 반환 
 ##### 포스트맨
-![특정 게시글 조회 포스트맨](https://github.com/yoonsseo/spring_core/assets/90557277/dd8147df-696b-41b7-9bfe-3aba1a965c57)
+![특정 게시글 조회 포스트맨](https://github.com/yoonsseo/spring_core/assets/90557277/dd8147df-696b-41b7-9bfe-3aba1a965c57)   
 조회수가 1로 증가했고 채팅방 개수도 0으로 잘 반환됨😊😊
-![삭제된 특정 게시글 조회](https://github.com/yoonsseo/spring_core/assets/90557277/02848af3-a24a-44f1-b7cd-c2dbbfa21814)
+![삭제된 특정 게시글 조회](https://github.com/yoonsseo/spring_core/assets/90557277/02848af3-a24a-44f1-b7cd-c2dbbfa21814)   
 삭제된 게시글은 `404 BAD REQUEST` 
 
 ### ❌ 특정 게시글 삭제 API
 ##### API 명세서 
-![특정 게시글 삭제 API 명세서](https://github.com/yoonsseo/spring_core/assets/90557277/3dbcb306-e4a5-4b45-b060-289d484090c9)
+![특정 게시글 삭제 API 명세서](https://github.com/yoonsseo/spring_core/assets/90557277/3dbcb306-e4a5-4b45-b060-289d484090c9)   
 ##### 로직
 ```java
     public void deletePost(Long postId) {
@@ -403,11 +403,11 @@ public PostResponseDto getPost(Long postId) {
     void deletePost(@Param("postId") Long postId);
    ```
 ##### 포스트맨 
-![특정 게시글 삭제 포스트맨](https://github.com/yoonsseo/spring_core/assets/90557277/10ed86f9-755c-46d1-9212-2478906666d2)
-![삭제된 특정 게시글 조회2](https://github.com/yoonsseo/spring_core/assets/90557277/f232d006-d85d-4993-bf5d-b76234f850b4)
+![특정 게시글 삭제 포스트맨](https://github.com/yoonsseo/spring_core/assets/90557277/10ed86f9-755c-46d1-9212-2478906666d2)   
+![삭제된 특정 게시글 조회2](https://github.com/yoonsseo/spring_core/assets/90557277/f232d006-d85d-4993-bf5d-b76234f850b4)   
 삭제 후 다시 조회하려고 하면 조회할 수 없음
 ##### MySQL
-![삭제 후 DB](https://github.com/yoonsseo/spring_core/assets/90557277/c75fe643-223b-455c-83cc-7bf3d55fd01a)
+![삭제 후 DB](https://github.com/yoonsseo/spring_core/assets/90557277/c75fe643-223b-455c-83cc-7bf3d55fd01a)   
 DB에도 잘 반영되어 있음😆😆
 
 ## 🚨 트러블 슈팅
