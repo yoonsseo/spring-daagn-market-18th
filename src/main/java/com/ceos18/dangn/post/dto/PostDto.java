@@ -8,14 +8,20 @@ public class PostDto {
     private String thumbnail;
     private int price;
     private int view;
-//    private String seller_town;
 
-    public PostDto(Post post) {
+    private int chatRoom;
+
+    private String seller_town;
+
+    public PostDto(Post post, int totalChatRoom, String sellerTown) {
         this.post_id = post.getId();
         this.title = post.getTitle();
         this.thumbnail = post.getThumbnail();
         this.price = post.getPrice();
         this.view = post.getView();
-//        this.seller_town = seller_town;
+
+        this.chatRoom = totalChatRoom;
+
+        this.seller_town = sellerTown;
     }
 }
