@@ -48,6 +48,9 @@ public class Post extends BaseEntity {
     @ColumnDefault("0")
     private int view;
 
+    @Column(columnDefinition = "TINYINT(0) DEFAULT 0")
+    private boolean isDel;
+
     //카테고리는 필수
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")

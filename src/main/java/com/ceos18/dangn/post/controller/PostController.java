@@ -18,7 +18,7 @@ public class PostController {
     private final PostService postService;
 
     @PostMapping
-    public ResponseEntity registerPost(@RequestBody RegisterPostRequestDto requestDto) {
+    public ResponseEntity<Void> registerPost(@RequestBody RegisterPostRequestDto requestDto) {
         postService.registerPost(requestDto);
         return ResponseEntity.ok().build();
     }
@@ -35,5 +35,9 @@ public class PostController {
         return postService.getPost(postId);
     }
 
-
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<Void> deletePost(@PathVariable Long postId) {
+        postService.deletePost(postId);
+        return ResponseEntity.ok().build();
+    }
 }

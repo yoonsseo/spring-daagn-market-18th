@@ -11,9 +11,13 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> {
-    Page<Post> findAll(Pageable pageable);
+    Page<Post> findByIsDel(boolean isDel, Pageable pageable);
 
     @Modifying
-    @Query("UPDATE Post p set p.view = p.view + 1 where p.id = :postId")
+    @Query("UPDATE Post p SET p.view = p.view + 1 WHERE p.id = :postId")
     void updateView(@Param("postId") Long postId);
+
+    @Modifying
+    @Query("UPDATE Post p SET p.isDel = true WHERE p.id = :postId")
+    void deletePost(@Param("postId") Long postId);
 }

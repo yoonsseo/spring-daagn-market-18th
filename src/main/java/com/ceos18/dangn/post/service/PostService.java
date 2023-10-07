@@ -45,7 +45,7 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public PostListResponseDto getPostList(Pageable pageable) {
-        Page<Post> findPosts = postRepository.findAll(pageable);
+        Page<Post> findPosts = postRepository.findByIsDel(false, pageable);
 
         Page<PostDto> postDtos = findPosts.map(post -> new PostDto(post,
                 chatRoomRepository.getTotalChatRoom(post),
@@ -57,7 +57,7 @@ public class PostService {
 
     public PostDetailResponseDto getPost(Long postId) {
         Optional<Post> findPost = postRepository.findById(postId);
-        if (findPost.isPresent()) {
+        if (findPost.isPresent() && !findPost.get().isDel()) {
             //조회수 올려주기!
             postRepository.updateView(postId);
 
@@ -71,5 +71,9 @@ public class PostService {
         else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 게시물 요청");
         }
+    }
+
+    public void deletePost(Long postId) {
+        postRepository.deletePost(postId);
     }
 }
