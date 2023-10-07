@@ -302,10 +302,10 @@ public PostListResponseDto getPostList(Pageable pageable) {
    ```java
     Page<Post> findByIsDel(boolean isDel, Pageable pageable);
    ```
-  그냥 정렬 조건을 modifiedAt의 ASC 순서로 Page 객체 생성 + 삭제 여부 확인 
+    그냥 정렬 조건을 `modifiedAt`의 ASC 순서로 Page 객체 생성 + 삭제 여부 확인   
    무한스크롤로 구현이 되어있는데, 잘 모르겠지만 프론트 측에서 스크롤 이벤트가 일어나거나 하는 상황에  
    벡으로 다음 페이지 번호로 요청하면, 일정 개수의 게시물 정보가 담긴 다음 페이지 반환   
-   잘 모르겠지만 무한스크롤 형식이든 게시판 형식이든 그것은 프론트가 해야하는 일이 아닐까..? →
+   잘 모르겠지만 무한스크롤 형식이든 게시판 형식이든 그것은 프론트가 해야하는 일이 아닐까..? →   
 2. 찾아온 게시물들에서 map으로 각 게시물 하나씩의 정보를 담은 `PostDto` 생성
     * post Entity 자체를 넘겨서 각 정보 뽑고,
     ```java
