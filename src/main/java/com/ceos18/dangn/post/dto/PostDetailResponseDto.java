@@ -1,7 +1,11 @@
 package com.ceos18.dangn.post.dto;
 
 import com.ceos18.dangn.domain.Post;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@Getter
 public class PostDetailResponseDto {
     private Long post_id;
 

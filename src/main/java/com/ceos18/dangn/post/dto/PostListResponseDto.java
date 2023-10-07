@@ -1,7 +1,10 @@
 package com.ceos18.dangn.post.dto;
 
+import lombok.Getter;
+
 import java.util.List;
 
+@Getter
 public class PostListResponseDto {
     private int total_page;
     private int current_page;

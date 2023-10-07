@@ -1,7 +1,9 @@
 package com.ceos18.dangn.post.dto;
 
 import com.ceos18.dangn.domain.Post;
+import lombok.Getter;
 
+@Getter
 public class PostDto {
     private Long post_id;
     private String title;

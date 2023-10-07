@@ -52,7 +52,7 @@ public class Post extends BaseEntity {
     private boolean isDel;
 
     //카테고리는 필수
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     @Setter
     private Category category;
