@@ -223,7 +223,7 @@ assertThat(테스트 타겟).메소드1().메소드2().메소드3();
 ## 📤 API 🔌📡
 ### 📬 게시글 등록 API
 ##### API 명세서
-![게시글 등록 API 명세서 ](https://github.com/yoonsseo/spring_core/assets/90557277/0734dbbf-f679-4774-b375-ef3eafb80be2)
+![게시글 등록 API](https://github.com/yoonsseo/spring_core/assets/90557277/93e4c13d-2b3a-4e9b-aa8b-603a1bc9e4fe)
 ##### 로직
 ```java
     public Long registerPost(RegisterPostRequestDto requestDto) {
@@ -268,7 +268,7 @@ assertThat(테스트 타겟).메소드1().메소드2().메소드3();
 ### 🗂️ 모든 게시글 조회 API
 ![모든 게시글](https://github.com/yoonsseo/spring_core/assets/90557277/a89a52e0-3f41-4ea8-8043-d7fb10c0adfc)
 ##### API 명세서
-![모든 게시글 조회 API 명세서](https://github.com/yoonsseo/spring_core/assets/90557277/3460f115-496e-42e2-80b7-83fbde770104)
+![모든 게시글 조회 API](https://github.com/yoonsseo/spring_core/assets/90557277/73d544fc-4f9b-48b5-acbe-7fdee41251ce)
 
 ##### 🤯 고민
 1. 정렬조건이 최신순이 아닌 것 같긴 한데 우선 Pageable 적용한 findAll로 갱신순으로 가져오려고 했다
@@ -282,37 +282,87 @@ assertThat(테스트 타겟).메소드1().메소드2().메소드3();
    그래서 정말로 그 위치의 동네 이름을 알려면 api가 필요할 것 같다  
 ##### 로직
 ```java
-    @Transactional(readOnly = true)
-    public PostListResponseDto getPostList(Pageable pageable) {
-        Page<Post> findPosts = postRepository.findAll(pageable);
+@Transactional(readOnly = true)
+public PostListResponseDto getPostList(Pageable pageable) {
+    Page<Post> findPosts = postRepository.findAll(pageable);
 
-        Page<PostDto> postDtos = findPosts.map(post -> new PostDto(post, 
-                chatRoomRepository.getTotalChatRoom(post), 
-                userTownRepository.findByUser(post.getSeller()).get(0).getTown().getTownName()));
+    Page<PostDto> postDtos = findPosts.map(post -> new PostDto(post,
+    chatRoomRepository.getTotalChatRoom(post),
+    userTownRepository.findByUser(post.getSeller()).get(0).getTown().getTownName()));
+    //편의상 첫 번째 주소로 가정
 
-        return new PostListResponseDto(postDtos.getTotalPages(), postDtos.getNumber(), postDtos.getContent());
+    return new PostListResponseDto(postDtos.getTotalPages(), postDtos.getNumber(), postDtos.getContent());
     }
 ```
 1. 현재 사용자의 동네로 설정된 근처 동네의 결과만 가져오는 방법은 적용하지 못했다  
   그냥 정렬 조건을 modifiedAt의 ASC 순서로 Page 객체 생성  
    무한스크롤로 구현이 되어있는데, 잘 모르겠지만 프론트 측에서 스크롤 이벤트가 일어나거나 하는 상황에  
    벡으로 다음 페이지 번호로 요청하면, 일정 개수의 게시물 정보가 담긴 다음 페이지 반환   
-   잘 모르겠지만 무한스크롤 형식이든 게시판 형식이든 그것은 프론트가 해야하는 일이 아닐까..?
+   잘 모르겠지만 무한스크롤 형식이든 게시판 형식이든 그것은 프론트가 해야하는 일이 아닐까..? →
 2. `findAll`로 찾아온 게시물들에서 map으로 각 게시물 하나씩의 정보를 담은 `PostDto` 생성
     * post Entity 자체를 넘겨서 각 정보 뽑고,
     ```java
-    @Query("SELECT COALESCE(COUNT(cr.id), 0) FROM ChatRoom cr " +
-            "WHERE cr.post = :post")
+    @Query("SELECT COALESCE(COUNT(cr.id), 0) FROM ChatRoom cr WHERE cr.post = :post")
     int getTotalChatRoom(@Param("post") Post post);
     ```
    * 채팅방 개수는 `ChatRoomRepository`에 쿼리 생성해서 계산
-   * 판매자 동네 정보 : post Entity의 seller 정보를 이용해 `UserTownRepository`에서 `findByUser`로 UserTown 리스트를 뽑은 다음에,  
+   * 판매자 동네 정보 : post Entity의 seller 정보를 이용해   
+   `UserTownRepository`에서 `findByUser`로 UserTown 리스트를 뽑은 다음에,  
      편의상 0번째 인덱스 값의 UserTown Entity → 의 Town으로 넘어가서 동네 이름 값 받아오기..
 3. 마지막으로 `PostListResponseDto`에 Page 객체가 제공해주는 메소드를 사용해  
    전체 페이지 수와, 현재 페이지 수,  
-   그리고 각 게시물 정보의 리스트를 담아서 ResponseBody로 반환    
+   그리고 각 게시물 정보의 리스트를 담아서 ResponseBody로 반환     
    에 위시리스트 까먹었다     
 
-### 🔍 특정 게시글 조회 API 
+### 🔍 특정 게시글 조회 API - 검색할까 상세할까 고민 중
+![게시물 상세](https://github.com/yoonsseo/spring_core/assets/90557277/e976f78c-fe94-40ad-9bca-4de77e000400)
 ##### API 명세서
+![특정 게시글 조회 API 명세서](https://github.com/yoonsseo/spring_core/assets/90557277/d4eecce6-2cb4-4566-a963-47bbcbcac4a5) 
 ##### 로직
+```java
+public PostResponseDto getPost(Long postId) {
+   Optional<Post> findPost = postRepository.findById(postId);
+   if (findPost.isPresent()) {
+       //조회수 올려주기!
+       postRepository.updateView(postId);
+
+       Post post = findPost.get();
+
+       //편의상 첫 번째 주소로 가정..
+       String sellerTown = userTownRepository.findByUser(post.getSeller()).get(0).getTown().getTownName();
+
+        return new PostDetailResponseDto(postId, post, sellerTown, chatRoomRepository.getTotalChatRoom(post));
+   }
+   else {
+       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 게시물 요청");
+   }
+```
+1. @PathVariable로 받아온 `postId`를 이용해 `postRepository`에서 게시물 찾기
+2. 게시물이 있으면 해당 게시물의 조회수 올려주기
+   ```java
+    @Modifying
+    @Query("UPDATE Post p set p.view = p.view + 1 where p.id = :postId")
+    void updateView(@Param("postId") Long postId);
+    ```
+3. 그리고 post Entity 받아오고, 판매자 주소 정보 찾은 거랑  
+   채팅방 리포지토리에서 채팅방 개수 찾아서 `PostDetailResponseDto` 생성해서 반환
+   ```java
+    public PostDetailResponseDto(Long postId, Post post, String sellerTown, int totalChatRoom) {
+        this.post_id = postId;
+
+        this.seller_profileImage = post.getSeller().getProfileImage();
+        this.seller_nickname = post.getSeller().getNickname();
+        this.seller_town = sellerTown;
+        this.seller_manners = post.getSeller().getManners();
+
+        this.title = post.getTitle();
+        this.category = post.getCategory().getName();
+        this.description = post.getDescription();
+        this.wishplace = post.getWishPlace();
+        this.view = post.getView();
+
+        this.total_ChatRoom = totalChatRoom;
+    }
+   ```
+4. 게시물이 없으면 `404` 반환 
+   
