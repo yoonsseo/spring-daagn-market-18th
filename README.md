@@ -413,8 +413,8 @@ DB에도 잘 반영되어 있음😆😆
 ## 🚨 트러블 슈팅
 1. 초기 DB에 값을 잘 넣어놓아야 했다   
    사용자랑 동네 넣고 UserTown 때문에 둘이 연결해 두어야 했고, 카테고리도 미리 생성해두어야 했음
-2. Category랑 Post 연관 관계 @ManyToOne으로 했다가 왜인지 @OneToOne으로 바꿨는데  
-   @ManyToOne이 맞았음  
+2. `Category`랑 `Post` 연관 관계 `@ManyToOne`으로 했다가 왜인지 `@OneToOne`으로 바꿨는데  
+   `@ManyToOne`이 맞았음  
 3. 모든 게시글 조회 API에서 계속 `406 not acceptable` 에러가 떴는데  
    DTO에 `@Getter` 붙여서 해결   
    JSON과 관련된 `jackson` 라이브러리가 없어서 나는 오류라고 한다  
