@@ -1,17 +1,11 @@
 package com.ceos18.dangn.post.service;
 
-import com.ceos18.dangn.domain.Category;
-import com.ceos18.dangn.domain.Post;
-import com.ceos18.dangn.domain.TradeMethod;
-import com.ceos18.dangn.domain.UserTown;
+import com.ceos18.dangn.domain.*;
 import com.ceos18.dangn.post.dto.PostDto;
 import com.ceos18.dangn.post.dto.PostListResponseDto;
 import com.ceos18.dangn.post.dto.PostResponseDto;
 import com.ceos18.dangn.post.dto.RegisterPostRequestDto;
-import com.ceos18.dangn.repository.CategoryRepository;
-import com.ceos18.dangn.repository.PostRepository;
-import com.ceos18.dangn.repository.TownRepository;
-import com.ceos18.dangn.repository.UserTownRepository;
+import com.ceos18.dangn.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,10 +24,13 @@ public class PostService {
     private final PostRepository postRepository;
     private final CategoryRepository categoryRepository;
     private final UserTownRepository userTownRepository;
-    private final TownRepository townRepository;
+    private final UserRepository userRepository;
 
     public Long registerPost(RegisterPostRequestDto requestDto) {
-        Post post = requestDto.toEntity();
+        //로그인된 유저의 올바른 정보가 넘어온다고 가정
+        User seller = userRepository.findById(requestDto.getUser_id()).get();
+
+        Post post = requestDto.toEntity(seller);
 
         TradeMethod tradeMethod = TradeMethod.valueOf(requestDto.getTradeMethod());
         post.setTradeMethod(tradeMethod);

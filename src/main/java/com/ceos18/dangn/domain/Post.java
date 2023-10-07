@@ -59,7 +59,8 @@ public class Post extends BaseEntity {
     private User seller;
 
     @Builder
-    public Post(String thumbnail, String title, int price, boolean isPriceOffer, String description, String wishPlace, int townRange) {
+    public Post(User seller, String thumbnail, String title, int price, boolean isPriceOffer, String description, String wishPlace, int townRange) {
+        this.seller = seller;
         this.thumbnail = thumbnail;
         this.title = title;
         this.price = price;
