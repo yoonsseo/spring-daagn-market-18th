@@ -265,3 +265,54 @@ assertThat(테스트 타겟).메소드1().메소드2().메소드3();
    카테고리도 String으로 넘어오기 때문에 `CategoryRepository`에서 엔티티 찾아서 연관 관계 설정해주기
 4. 그리고 save 해주고 일단 Service에서는 postId 리턴해주었당 Controller에서는 ok 이름이 뭐더라
 
+### 🗂️ 모든 게시글 조회 API
+![모든 게시글](https://github.com/yoonsseo/spring_core/assets/90557277/a89a52e0-3f41-4ea8-8043-d7fb10c0adfc)
+##### API 명세서
+![모든 게시글 조회 API 명세서](https://github.com/yoonsseo/spring_core/assets/90557277/3460f115-496e-42e2-80b7-83fbde770104)
+
+##### 🤯 고민
+1. 정렬조건이 최신순이 아닌 것 같긴 한데 우선 Pageable 적용한 findAll로 갱신순으로 가져오려고 했다
+2. 근데 생각해보니 근처 동네의 게시물만 가져와야하고 
+3. 또 생각해보니까 사용자가 두 개의 동네를 설정할 수 있는데  
+   사용자의 현재 동네랑  
+  판매자가 어느 동네를 현재로 설정하고 올린 게시물인지도 알아야할 거 같은데  
+   그거는 포스트 엔티티에 컬럼이 있어야할 것 같다
+4. 타운 엔티티에 위도와 경도를 추가하긴 했는데   
+   예를 들어 근처 동네 범위를 위도±50, 경도±50 으로 설정했을 때  
+   그래서 정말로 그 위치의 동네 이름을 알려면 api가 필요할 것 같다  
+##### 로직
+```java
+    @Transactional(readOnly = true)
+    public PostListResponseDto getPostList(Pageable pageable) {
+        Page<Post> findPosts = postRepository.findAll(pageable);
+
+        Page<PostDto> postDtos = findPosts.map(post -> new PostDto(post, 
+                chatRoomRepository.getTotalChatRoom(post), 
+                userTownRepository.findByUser(post.getSeller()).get(0).getTown().getTownName()));
+
+        return new PostListResponseDto(postDtos.getTotalPages(), postDtos.getNumber(), postDtos.getContent());
+    }
+```
+1. 현재 사용자의 동네로 설정된 근처 동네의 결과만 가져오는 방법은 적용하지 못했다  
+  그냥 정렬 조건을 modifiedAt의 ASC 순서로 Page 객체 생성  
+   무한스크롤로 구현이 되어있는데, 잘 모르겠지만 프론트 측에서 스크롤 이벤트가 일어나거나 하는 상황에  
+   벡으로 다음 페이지 번호로 요청하면, 일정 개수의 게시물 정보가 담긴 다음 페이지 반환   
+   잘 모르겠지만 무한스크롤 형식이든 게시판 형식이든 그것은 프론트가 해야하는 일이 아닐까..?
+2. `findAll`로 찾아온 게시물들에서 map으로 각 게시물 하나씩의 정보를 담은 `PostDto` 생성
+    * post Entity 자체를 넘겨서 각 정보 뽑고,
+    ```java
+    @Query("SELECT COALESCE(COUNT(cr.id), 0) FROM ChatRoom cr " +
+            "WHERE cr.post = :post")
+    int getTotalChatRoom(@Param("post") Post post);
+    ```
+   * 채팅방 개수는 `ChatRoomRepository`에 쿼리 생성해서 계산
+   * 판매자 동네 정보 : post Entity의 seller 정보를 이용해 `UserTownRepository`에서 `findByUser`로 UserTown 리스트를 뽑은 다음에,  
+     편의상 0번째 인덱스 값의 UserTown Entity → 의 Town으로 넘어가서 동네 이름 값 받아오기..
+3. 마지막으로 `PostListResponseDto`에 Page 객체가 제공해주는 메소드를 사용해  
+   전체 페이지 수와, 현재 페이지 수,  
+   그리고 각 게시물 정보의 리스트를 담아서 ResponseBody로 반환    
+   에 위시리스트 까먹었다     
+
+### 🔍 특정 게시글 조회 API 
+##### API 명세서
+##### 로직
