@@ -263,7 +263,11 @@ assertThat(테스트 타겟).메소드1().메소드2().메소드3();
    ```
 3. TradeMethod 거래하기/나눔하기의 거래방식은 String으로 넘어오는데 Enum값으로 설정되어 있기 때문에 따로 설정해준다  
    카테고리도 String으로 넘어오기 때문에 `CategoryRepository`에서 엔티티 찾아서 연관 관계 설정해주기
-4. 그리고 save 해주고 일단 Service에서는 postId 리턴해주었당 Controller에서는 ok 반환 
+4. 그리고 save 해주고 일단 Service에서는 postId 리턴해주었당 Controller에서는 ok 반환
+##### 포스트맨
+![게시글 등록 포스트맨](https://github.com/yoonsseo/spring_core/assets/90557277/1dfec823-68c5-4346-8da2-19cd0f3c4bd0)
+##### MySQL
+![게시글 등록 DB](https://github.com/yoonsseo/spring_core/assets/90557277/e55c19e6-f854-4037-a725-73600c951f2a)
 
 ### 🗂️ 모든 게시글 조회 API
 ![모든 게시글](https://github.com/yoonsseo/spring_core/assets/90557277/a89a52e0-3f41-4ea8-8043-d7fb10c0adfc)
@@ -315,7 +319,13 @@ public PostListResponseDto getPostList(Pageable pageable) {
 3. 마지막으로 `PostListResponseDto`에 Page 객체가 제공해주는 메소드를 사용해  
    전체 페이지 수와, 현재 페이지 수,  
    그리고 각 게시물 정보의 리스트를 담아서 ResponseBody로 반환     
-   에 위시리스트 까먹었다     
+   에 위시리스트 까먹었다 
+##### MySQL
+![모든 게시글 조회 DB](https://github.com/yoonsseo/spring_core/assets/90557277/c6b863a9-82d0-4fa6-afe1-79c4f8f7061c)
+##### 포스트맨
+![모든 게시글 조회 포스트맨](https://github.com/yoonsseo/spring_core/assets/90557277/8e8d9beb-0188-4643-b6be-52fcb32b2f5d)
+![모든 게시글 조회2](https://github.com/yoonsseo/spring_core/assets/90557277/a45f73a0-9944-47c9-90b6-e6a201d3cf32)
+3번 게시글은 isDel=1로 삭제된 게시글이라 나타나지 않는당👏🏻👏🏻
 
 ### 🔍 특정 게시글 조회 API - 검색할까 상세할까 고민 중
 ![게시물 상세](https://github.com/yoonsseo/spring_core/assets/90557277/e976f78c-fe94-40ad-9bca-4de77e000400)
@@ -368,11 +378,16 @@ public PostResponseDto getPost(Long postId) {
     }
    ```
 4. 게시물이 없으면 `404` 반환 
+##### 포스트맨
+![특정 게시글 조회 포스트맨](https://github.com/yoonsseo/spring_core/assets/90557277/dd8147df-696b-41b7-9bfe-3aba1a965c57)
+조회수가 1로 증가했고 채팅방 개수도 0으로 잘 반환됨😊😊
+![삭제된 특정 게시글 조회](https://github.com/yoonsseo/spring_core/assets/90557277/02848af3-a24a-44f1-b7cd-c2dbbfa21814)
+삭제된 게시글은 `404 BAD REQUEST` 
 
 ### ❌ 특정 게시글 삭제 API
-#### API 명세서
+##### API 명세서 
 ![특정 게시글 삭제 API 명세서](https://github.com/yoonsseo/spring_core/assets/90557277/3dbcb306-e4a5-4b45-b060-289d484090c9)
-#### 로직
+##### 로직
 ```java
     public void deletePost(Long postId) {
         postRepository.deletePost(postId);
@@ -387,3 +402,23 @@ public PostResponseDto getPost(Long postId) {
     @Query("UPDATE Post p SET p.isDel = true WHERE p.id = :postId")
     void deletePost(@Param("postId") Long postId);
    ```
+##### 포스트맨 
+![특정 게시글 삭제 포스트맨](https://github.com/yoonsseo/spring_core/assets/90557277/10ed86f9-755c-46d1-9212-2478906666d2)
+![삭제된 특정 게시글 조회2](https://github.com/yoonsseo/spring_core/assets/90557277/f232d006-d85d-4993-bf5d-b76234f850b4)
+삭제 후 다시 조회하려고 하면 조회할 수 없음
+##### MySQL
+![삭제 후 DB](https://github.com/yoonsseo/spring_core/assets/90557277/c75fe643-223b-455c-83cc-7bf3d55fd01a)
+DB에도 잘 반영되어 있음😆😆
+
+## 🚨 트러블 슈팅
+1. 초기 DB에 값을 잘 넣어놓아야 했다   
+   사용자랑 동네 넣고 UserTown 때문에 둘이 연결해 두어야 했고, 카테고리도 미리 생성해두어야 했음
+2. Category랑 Post 연관 관계 @ManyToOne으로 했다가 왜인지 @OneToOne으로 바꿨는데  
+   @ManyToOne이 맞았음  
+3. 모든 게시글 조회 API에서 계속 `406 not acceptable` 에러가 떴는데  
+   DTO에 `@Getter` 붙여서 해결   
+   JSON과 관련된 `jackson` 라이브러리가 없어서 나는 오류라고 한다  
+
+## 느낀점
+생각보다 당근마켓의 DB와 로직은 매우 복잡한 거 같다   
+실제로 어떻게 구현되어 있는지 정말 궁금하다  
