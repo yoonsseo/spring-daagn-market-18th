@@ -9,7 +9,7 @@ public class PostDto {
     private int price;
     private int view;
 
-    private int chatRoom;
+    private int total_ChatRoom;
 
     private String seller_town;
 
@@ -20,7 +20,7 @@ public class PostDto {
         this.price = post.getPrice();
         this.view = post.getView();
 
-        this.chatRoom = totalChatRoom;
+        this.total_ChatRoom = totalChatRoom;
 
         this.seller_town = sellerTown;
     }

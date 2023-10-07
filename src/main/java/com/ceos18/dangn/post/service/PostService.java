@@ -3,7 +3,7 @@ package com.ceos18.dangn.post.service;
 import com.ceos18.dangn.domain.*;
 import com.ceos18.dangn.post.dto.PostDto;
 import com.ceos18.dangn.post.dto.PostListResponseDto;
-import com.ceos18.dangn.post.dto.PostResponseDto;
+import com.ceos18.dangn.post.dto.PostDetailResponseDto;
 import com.ceos18.dangn.post.dto.RegisterPostRequestDto;
 import com.ceos18.dangn.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -51,11 +50,12 @@ public class PostService {
         Page<PostDto> postDtos = findPosts.map(post -> new PostDto(post,
                 chatRoomRepository.getTotalChatRoom(post),
                 userTownRepository.findByUser(post.getSeller()).get(0).getTown().getTownName()));
+        //편의상 첫 번째 주소로 가정
 
         return new PostListResponseDto(postDtos.getTotalPages(), postDtos.getNumber(), postDtos.getContent());
     }
 
-    public PostResponseDto getPost(Long postId) {
+    public PostDetailResponseDto getPost(Long postId) {
         Optional<Post> findPost = postRepository.findById(postId);
         if (findPost.isPresent()) {
             //조회수 올려주기!
@@ -66,10 +66,10 @@ public class PostService {
             //편의상 첫 번째 주소로 가정..
             String sellerTown = userTownRepository.findByUser(post.getSeller()).get(0).getTown().getTownName();
 
-            return new PostResponseDto(postId, post, sellerTown);
+            return new PostDetailResponseDto(postId, post, sellerTown, chatRoomRepository.getTotalChatRoom(post));
         }
         else {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "게시물 없음");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 게시물 요청");
         }
     }
 }

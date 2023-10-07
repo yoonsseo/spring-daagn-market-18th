@@ -1,14 +1,11 @@
 package com.ceos18.dangn.post.dto;
 
 import com.ceos18.dangn.domain.Post;
-import com.ceos18.dangn.domain.User;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
 
-public class PostResponseDto {
+public class PostDetailResponseDto {
     private Long post_id;
 
+    private String seller_profileImage;
     private String seller_nickname;
     private String seller_town;
     private double seller_manners;
@@ -17,11 +14,16 @@ public class PostResponseDto {
     private String category;
     private String description;
     private String wishplace;
+    private int price;
+    private boolean isPriceOffer;
     private int view;
 
-    public PostResponseDto(Long postId, Post post, String sellerTown) {
+    private int total_ChatRoom;
+
+    public PostDetailResponseDto(Long postId, Post post, String sellerTown, int totalChatRoom) {
         this.post_id = postId;
 
+        this.seller_profileImage = post.getSeller().getProfileImage();
         this.seller_nickname = post.getSeller().getNickname();
         this.seller_town = sellerTown;
         this.seller_manners = post.getSeller().getManners();
@@ -31,5 +33,7 @@ public class PostResponseDto {
         this.description = post.getDescription();
         this.wishplace = post.getWishPlace();
         this.view = post.getView();
+
+        this.total_ChatRoom = totalChatRoom;
     }
 }
