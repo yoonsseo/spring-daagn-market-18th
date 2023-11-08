@@ -22,6 +22,12 @@ public class User extends BaseEntity {
     @NotNull
     private String nickname;
 
+    @NotNull
+    private String password;
+
+    @NotNull
+    private Role role;
+
     private String profileImage;
 
 //    매너온도 고민
@@ -29,8 +35,10 @@ public class User extends BaseEntity {
     private double manners;
 
     @Builder
-    public User(String phone, String nickname) {
+    public User(String phone, String nickname, String password, Role role) {
         this.phone = phone;
         this.nickname = nickname;
+        this.password = password;
+        this.role = role;
     }
 }
