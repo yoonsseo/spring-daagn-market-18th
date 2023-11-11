@@ -1,11 +1,11 @@
 package com.ceos18.dangn.user.service;
 
+import com.ceos18.dangn.config.JwtTokenProvider;
 import com.ceos18.dangn.domain.Role;
 import com.ceos18.dangn.domain.User;
 import com.ceos18.dangn.exception.custom.InvalidPasswordException;
 import com.ceos18.dangn.exception.custom.UserDuplicatedException;
 import com.ceos18.dangn.exception.custom.UserNotFoundException;
-import com.ceos18.dangn.exception.dto.UserResponseDto;
 import com.ceos18.dangn.user.dto.SignInDto;
 import com.ceos18.dangn.user.dto.SignInResponseDto;
 import com.ceos18.dangn.user.dto.SignUpDto;
@@ -23,7 +23,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final JwtTokenProvider jwtTokenProvider;
 
+    @Transactional
     public ResponseEntity<Void> signUp(SignUpDto signUpDto) {
         //중복체크
         userRepository.findByPhone(signUpDto.getPhone())
@@ -43,7 +45,8 @@ public class UserService {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    public ResponseEntity<SignInResponseDto> signIn(SignInDto signInDto) {
+    @Transactional
+    public SignInResponseDto signIn(SignInDto signInDto) {
         //전화번호 확인
         User user = userRepository.findByPhone(signInDto.getPhone())
                 .orElseThrow(UserNotFoundException::new);
@@ -54,7 +57,9 @@ public class UserService {
         }
 
         //TOKEN 발행
+        String accessToken = jwtTokenProvider.createAccessToken(user.getId(), signInDto.getPhone(), user.getRole().toString());
 
 
+        return SignInResponseDto.builder().accessToken(accessToken).build();
     }
 }
