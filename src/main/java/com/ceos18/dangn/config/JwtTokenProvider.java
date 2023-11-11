@@ -70,7 +70,7 @@ public class JwtTokenProvider {
                 .getExpiration();
         boolean isExpired = expiration.before(new Date());
 
-        return isExpired;
+        return !isExpired;
     }
 
     //TOKEN에서 사용자 정보 꺼내기
@@ -86,7 +86,7 @@ public class JwtTokenProvider {
     //권한 부여
     public Authentication getAuthentication(String token) {
         UserDetails userDetails = userDetailsService.loadUserByUsername(this.getUserId(token));
-        return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 
 }

@@ -57,7 +57,7 @@ public class UserService {
         }
 
         //TOKEN 발행
-        String accessToken = jwtTokenProvider.createAccessToken(user.getId(), signInDto.getPhone(), user.getRole().toString());
+        String accessToken = jwtTokenProvider.createAccessToken(user.getId(), signInDto.getPhone(), user.getRole().name());
 
 
         return SignInResponseDto.builder().accessToken(accessToken).build();

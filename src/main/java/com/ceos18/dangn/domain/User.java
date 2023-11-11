@@ -5,9 +5,12 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 @Entity
 @Getter
@@ -30,6 +33,7 @@ public class User extends BaseEntity implements UserDetails {
     private String password;
 
     @NotNull
+    @Enumerated(EnumType.STRING)
     private Role role;
 
     private String profileImage;
@@ -52,7 +56,9 @@ public class User extends BaseEntity implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        List<GrantedAuthority> auth = new ArrayList<>();
+        auth.add(new SimpleGrantedAuthority(role.name()));
+        return auth;
     }
 
     @Override
