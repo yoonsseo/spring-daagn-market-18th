@@ -1125,3 +1125,94 @@ public ResponseEntity<Void> registerPost(@RequestBody RegisterPostRequestDto req
 ```
 ![토큰 넣고 게시글 등록 포스트맨](https://github.com/yoonsseo/spring-security/assets/90557277/af0e477b-d822-4546-b8c9-101de2b81811)
 ![토큰 게시글 디비](https://github.com/yoonsseo/spring-security/assets/90557277/6e557796-69f7-447a-8d33-bac239ec4e19)
+
+## [5주차] 🐳 Docker - 로컬
+### 1. Dockerfile
+```dockerfile
+FROM openjdk:17-jdk-slim
+ADD /build/libs/*.jar app.jar
+ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar"]
+```
+
+### 2. docker-compose.yml
+```yml
+version: "3"
+
+services:
+  db:
+    container_name: db
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: mysql
+      MYSQL_DATABASE: test
+    volumes:
+      - dbdata:/var/lib/mysql
+    ports:
+      - 3306:3306
+    restart: always
+
+  web:
+    container_name: web
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      mysql_host: db
+    restart: always
+    volumes:
+      - .:/app
+
+volumes:
+  app:
+  dbdata:
+```
+
+### 3. 
+#### 3.1. root 계정으로 이동하고 git clone 해주기
+![도커 중간](https://github.com/yoonsseo/spring-docker/assets/90557277/6c98a304-873d-4d1e-85b0-0415097e081f)
+
+#### 3.2. java 설치
+![자바없음](https://github.com/yoonsseo/spring-docker/assets/90557277/9ea2721a-f44a-4e0b-a374-e8af6dfe8f8f)
+
+#### 3.3. 
+![sh gradlew build](https://github.com/yoonsseo/spring-docker/assets/90557277/d37b67a0-5d6b-4f58-aeec-b72bf068bd55)
+
+![sh gradlew](https://github.com/yoonsseo/spring-docker/assets/90557277/714754dd-68ad-4c57-914c-3b4f3d2d479f)
+
+#### 3.4. build 디렉토리 없었는데 생김
+![build디렉토리없었는데](https://github.com/yoonsseo/spring-docker/assets/90557277/9dc05f7c-a201-42ea-9fd9-f8f0c194bb92)
+
+![생김](https://github.com/yoonsseo/spring-docker/assets/90557277/de0983cc-3b20-4bf3-a8b2-2cd516687a63)
+
+#### 3.5. jar 파일 생겼고 스프링 바로 실행 가능
+![jar 파일 생성](https://github.com/yoonsseo/spring-docker/assets/90557277/f7c4284b-4167-4031-8d65-e22736ec9cd4)
+
+![스프링 바로 시작할 수 있음](https://github.com/yoonsseo/spring-docker/assets/90557277/ef20f664-8f85-4971-89b6-37249e0e4460)
+
+![스프링 돌아가는 거 확인](https://github.com/yoonsseo/spring-docker/assets/90557277/1ec9adb2-62e0-4aa2-9830-28959a7690f6)
+
+#### 3.6. 도커 설치하고 확인
+![도커 설치](https://github.com/yoonsseo/spring-docker/assets/90557277/aee2f09a-fd96-479f-8492-5ed503d519d2)
+
+![도커 설치 확인](https://github.com/yoonsseo/spring-docker/assets/90557277/3fcbe141-6083-4ec8-bbbf-bd092596f31a)
+
+#### 3.7. 도커 nginx
+![도커 nginx](https://github.com/yoonsseo/spring-docker/assets/90557277/cbdf75ce-b65d-4c25-9237-7533b5e5ffb2)
+
+![브라우저 nginx](https://github.com/yoonsseo/spring-docker/assets/90557277/7dd0e377-67f8-4e87-ab0b-062753542857)
+
+#### 3.8. 도커 빌드하고 이미지 확인
+![도커빌드](https://github.com/yoonsseo/spring-docker/assets/90557277/e11a2eb9-98b3-4812-8272-b78e36369d87)
+
+![도커 이미지](https://github.com/yoonsseo/spring-docker/assets/90557277/adcbbc67-a539-4ce4-97e2-76966e3493da)
+
+#### 3.9. 도커에서 스프링이랑 mysql
+![도커에서 스프링](https://github.com/yoonsseo/spring-docker/assets/90557277/24e373eb-222a-4e15-852c-3b077aadf9cd)
+
+![도커 mysql](https://github.com/yoonsseo/spring-docker/assets/90557277/3c9e0aa3-6aae-4e90-89d2-185bb3a53b35)
+
+### 4. API 추가
+#### 4.1. 사용자 프로필 불러오기
+#### 4.2. Spring Security 자잘한 수정
