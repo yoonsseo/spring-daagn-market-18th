@@ -1127,12 +1127,101 @@ public ResponseEntity<Void> registerPost(@RequestBody RegisterPostRequestDto req
 ![토큰 게시글 디비](https://github.com/yoonsseo/spring-security/assets/90557277/6e557796-69f7-447a-8d33-bac239ec4e19)
 
 ## [5주차] 🐳 Docker - 로컬
-### 1. Dockerfile
-```dockerfile
-FROM openjdk:17-jdk-slim
-ADD /build/libs/*.jar app.jar
-ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar"]
+### 0. 도커 컨테이너 통신하기
+* 도커는 기본적으로 독립적인 환경에서 실행되기 때문에 컨테이너 밖에서 접근할 수 없다 
+
+
+* 컨테이너와 통신하기 위해서는 컨테이너를 가동시키면서 `-p` 옵션을 사용해 호스트의 포트와 컨테이너의 포트를 설정해야 한다
+```shell
+-p ${host_port}:${container_port}
 ```
+* 이 설정을 사용하기 위해서는 호스트(서버 또는 PC)에서 사용 중인 포트와 번호가 겹치지 않는지 확인이 필요하다
+
+
+```shell
+docker run --name test1 -d httpd
+docker run --name test1 -d -p 8080:80 httpd
+```
+* `--name test1` : test1이라는 이름으로 컨테이너 생성
+* `-d` : 백그라운드로 동작
+* `-p 8080:80`: 호스트의 포트는 8080, 컨테이너의 포트는 80으로 세팅해 네트워크 설정
+
+
+```shell
+docker ps -a
+docker container ls -a
+```
+* 동일한 두 개의 명령어
+* `-a` 옵션 : 없으면 실행 중인 컨테이너만 보여줌
+  * 붙여주면 다양한 상태의 컨테이너 확인 가능
+* 위의 명령어를 입력해 컨테이너의 상태를 확인할 수 있다 
+
+ 
+```shell
+docker stop test1
+docker rm test1
+```
+* 컨테이너 실행 중지 및 삭제 명령어 
+
+
+### 1. Dockerfile
+#### 1.1. Dockerfile이란?
+* 도커 이미지를 생성하기 위한 스크립트 파일
+* 여러 키워드를 사용해 dockerfile을 작성해 빌드를 보다 쉽게 수행할 수 있다
+
+#### 1.2. dockerfile에서 사용되는 주요 명령어
+* `FROM` : base가 되는 image 지정, 주로 OS 이미지나 런타임 이미지를 지정
+* `RUN` : 이미지를 빌드할 때 사용하는 커맨드를 설정할 때 사용
+* `ADD` : 이미지에 호스트의 파일이나 폴더를 추가하기 위해 사용
+  * 만약 이미지에 복사하려는 디렉토리가 존재하지 않으면 docker가 자동으로 생성
+* `COPY` : 호스트 환경의 파일이나 폴더를 이미지 안으로 복사하기 위해 사용  
+  * `ADD`와 동일하게 동작하지만 가장 확실한 차이점은 URL을 지정하거나 압축파일을 자동으로 풀지 않음
+* `EXPOSE` : 이미지가 통신에 사용할 포트를 지정할 때 사용
+* `ENV` : 환경 변수 지정 시 사용
+  * `$name`, `${name}`의 형태로 사용 가능
+  * `${name:-else}` : name이 정의되어 있지 않다면 else가 사용됨
+* `CMD` : 도커 컨테이너가 실행될 때 실행할 커맨드 지정
+  * `RUN`과 비슷하지만 도커 이미지를 빌드할 때 실행되는 것이 아니라 컨테이너를 시작할 때 실행된다는 것이 다르다
+* `ENTRYPOINT` : 도커 이미지가 실행될 때 사용되는 기본 커맨드 지정 (강제)
+* `WORKDIR` : RUN, CMD, ENTRYPOINT 등을 사용한 커맨드를 실행하는 디렉토리 지정
+  * `-W` 옵션으로 오버라이딩 가능
+* `VOLUME` : 퍼시스턴스 데이터를 저장할 경로를 지정할 때 사용
+  * 호스트의 디렉토리를 도커 컨테이너에 연결
+  * 주로 휘발성으로 사용되면 안되는 데이터를 저장할 때 사용 
+
+
+#### 1.3. docker build 명령어
+```shell
+docker build ${option} ${dockerfile directory}
+docker build -t test1 . 
+```
+* dockerfile을 실행하기 위한 docker build 커맨드
+* 이미지의 이름 test
+* .으로 도커 파일의 위치
+
+```shell
+docker run --name test_app -p 80:80 test1
+```
+* 생성된 이미지를 컨테이너로 사용하기 위함
+
+
+#### 1.4. dockerfile
+```dockerfile
+FROM openjdk:17-jdk-slim 
+#이 Docker 이미지는 OpenJDK 17를 기반으로 함, Java 17을 설치하고 실행할 수 있는 환경 제공
+ARG JAR_FILE=/build/libs/*.jar
+#Docker 빌드 시에 전달되는 인자(Argument)로, 어플리케이션 JAR 파일의 경로를 지정
+COPY ${JAR_FILE} app.jar
+# 앞서 정의한 JAR_FILE 변수를 이용해 빌드된 JAR 파일을 Docker 이미지 내부로 복사
+# 이때, app.jar로 파일을 복사하게 된다
+ENTRYPOINT ["java","-jar", "/app.jar"]
+#컨테이너가 시작될 때 실행되는 명령어 설정 
+#이 경우, Java로 JAR 파일을 실행하는 명령어 지정
+```
+
+### 🚨 DB 연결 안 되는 문제 🤯
+![applicationYML](https://github.com/yoonsseo/spring-docker/assets/90557277/c2b7f348-6b59-40eb-aa5f-1625e3911472)
+* `application.yml`에서 `host.docker.internal:3306` 으로 연결 
 
 ### 2. docker-compose.yml
 #### 2.1. docker-compose.yml 파일이란?
