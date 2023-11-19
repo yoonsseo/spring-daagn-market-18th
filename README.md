@@ -1135,39 +1135,101 @@ ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar"]
 ```
 
 ### 2. docker-compose.yml
+#### 2.1. docker-compose.yml 파일이란?
+* 도커 애플리케이션의 서비스, 네트워크, 볼륨 등의 설정을 yml 형식으로 저장하는 파일
+
+|설명| 공식 문서의 예제 파일                                                                                                                                   |
+|------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------|
+| ![도커 컴포즈 공식 예제](https://github.com/yoonsseo/spring-docker/assets/90557277/ad846906-aa07-454e-adbe-f394c82175d8)| 큰 틀에서의 구성 요소는 <br> service, volumn, config, <br> secret, network, <br> 그리고 version이 있는데, <br> 이 중 version은 derprecated되어 <br> 더 이상 설정하지 않아도 된다 |
+
+#### 2.2. services
+* 여러 컨테이너를 정의하는 데 사용된다 
+```yml
+services:
+  frontend:
+    image: awesome/webapp
+
+  backend:
+    image: awesome/database
+```
+* 'frontend'와 'backend'는 각 `container`를 정의하고, 각 `container`의 이름이 된다
+* `awesome/database`라는 도커 `image`를 가지고 `container`를 가동하게 되면 `container`의 이름이 'backend'가 된다는 의미
+
+#### 2.3. `container`를 설정할 때 사용되는 키워드
+* `image` : 컨테이너의 이미지 정의
+* `build` : 이미지를 활용하는 방식이 아닌 dockerfile의 경로를 지정해 빌드하여 사용하는 방법
+  * 이미지를 어디서 가져오는 게 아니라,  
+    이 `build`를 통해 dockerfile의 경로를 설정해 직접 빌드해서 컨테이너를 띄울 때 사용되는 방법 
+* `dockerfile` : 빌드할 dockerfile의 이름이 `Dockerfile`이 아닌 경우 이름을 지정하기 위해 사용
+* `ports` : 호스트와 컨테이너의 포트 바인딩 설정에 사용됨
+* `volumes` : 호스트의 지정된 경로로 컨테이너의 볼륨을 마운트 하도록 설정
+* `container_name` : 컨테이너 이름 설정
+* `command` : 컨테이너가 실행된 후 컨테이너 쉘에서 실행시킬 쉘 명령어
+* `environment` : 환경 변수 설정
+* `env_file` : `environment`와 동일한 기능을 수행하지만, 이 키워드를 사용하면 `env`파일을 이용해 적용할 수 있다 
+* `depends_on` : 다른 컨테이너와 의존관계 설정
+* `restart` : 컨테이너의 재시작과 관련한 설정 
+  * 어떤 오류로 인해 이미지가 실행이 안 됐을 때 멈출 건지 다시 실행할 건지
+
+#### 2.4. docker compose 파일 실행
+```shell
+docker-compose up
+```
+* 해당 명령어를 실행하는 경로에서 `docker-compose.yml` 파일을 찾아서 실행
+```shell
+docker-compose -f docker-compose-custom.yml up
+```
+* `-f` 옵션 : `docker-compose`는 기본적으로 `docker-compose.yml`의 이름을 사용하는데,  
+  만약 다른 이름으로 파일을 관리하고 사용하는 경우 해당 옵션을 이용할 수 있다
+```shell
+docker-compose up -d
+```
+* `-d` 옵션 : 백그라운드에서 `docker-compose`를 실행하기 위해 사용
+  * `-d` 옵션 없이 up 하면, 테스트 끝날 때까지 해당 터미널은 더 이상 사용할 수 없기 때문에 사용하는 옵션
+
+#### 2.5. 언제 `docker-compose`를 사용할까?
+* Redis 같은 데이터베이스 등의 외부 환경이 필요한 경우, 즉, 인프라 구축 시  
+  로컬에 설치하기 싫을 때 도커 이미지를 이용해 컨테이너로 쓰고 내리는 식으로 사용 가능
+
+#### 2.6. docker-compose.yml 
 ```yml
 version: "3"
 
 services:
   db:
-    container_name: db
-    image: mysql:8.0
-    environment:
-      MYSQL_ROOT_PASSWORD: mysql
-      MYSQL_DATABASE: test
-    volumes:
-      - dbdata:/var/lib/mysql
-    ports:
-      - 3306:3306
-    restart: always
+    container_name: dangn_db # 컨테이너 이름 설정
+    image: mysql:8.0 # MySQL 8.0 버전 이미지 사용
+    environment: # MySQL에 전달하는 환경 변수
+      MYSQL_ROOT_PASSWORD: mysql # 루트 사용자 비밀번호와
+      MYSQL_DATABASE: ceos_dangn # 데이터베이스 이름
+    volumes: # 호스트 시스템과 컨테이너 간에 데이터를 공유하기 위한 볼륨 설정
+      - dbdata:/var/lib/mysql # MySQL 데이터 디렉토리를 호스트 시스템의 dbdata 볼륨과 연결
+    ports: # 호스트 시스템과 컨테이너 간의 포트 매핑을 설정
+      - 3306:3306 # MySQL의 3306 포트를 호스트의 3306 포트와 연결
+    restart: always # 컨테이너가 종료될 때 항상 다시 시작하도록 설정
 
   web:
-    container_name: web
-    build: .
-    ports:
-      - "8080:8080"
-    depends_on:
-      - db
-    environment:
-      mysql_host: db
-    restart: always
-    volumes:
-      - .:/app
+    container_name: dangn_web # 컨테이너 이름 설정
+    build: . # 현재 디렉토리에서 Dockerfile을 사용해 이미지 빌드
+    ports: # 호스트 시스템과 컨테이너 간의 포트 매핑 설정
+      - "8080:8080" # 웹 어플리케이션의 8080 포트를 호스트의 8080 포트와 연결
+    depends_on: # 의존하는 서비스 설정
+      - db # web 서비스가 시작되기 전에 db 서비스가 먼저 시작되도록 설정
+    environment: # 어플리케이션에서 사용할 환경 변수를 설정
+      mysql_host: db # MySQL 호스트를 db로 설정
+    restart: always # 컨테이너가 종료될 때 항상 다시 시작하도록 설정
+    volumes: # 호스트 시스템과 컨테이너 간에 데이터를 공유하기 위한 볼륨 설정
+      - .:/app # 현재 디렉토리를 호스트의 /app 디렉토리와 연결
 
 volumes:
-  app:
-  dbdata:
+  app: # 호스트 시스템과 web 컨테이너 간에 데이터를 공유하기 위한 볼륨
+  dbdata: # 호스트 시스템과 db 컨테이너 간에 MySQL 데이터를 공유하기 위한 볼륨
 ```
+![docker-compose 실행](https://github.com/yoonsseo/spring-docker/assets/90557277/9175bcab-7b98-4de0-aa6a-e6780cdebdf5)
+
+|Containers|Images|Volumes|
+|---|---|---|
+|![컨테이너](https://github.com/yoonsseo/spring-docker/assets/90557277/7faf911b-4d28-4dd7-b7de-037d12c8916e)|![이미지](https://github.com/yoonsseo/spring-docker/assets/90557277/5cb9aafd-ae0e-4843-8477-593f9fee4690)|![볼륨](https://github.com/yoonsseo/spring-docker/assets/90557277/3cb27d1a-702f-45d6-bd6f-d425e057727b)|
 
 ### 3. 
 #### 3.1. root 계정으로 이동하고 git clone 해주기
