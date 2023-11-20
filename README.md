@@ -1127,9 +1127,52 @@ public ResponseEntity<Void> registerPost(@RequestBody RegisterPostRequestDto req
 ![토큰 게시글 디비](https://github.com/yoonsseo/spring-security/assets/90557277/6e557796-69f7-447a-8d33-bac239ec4e19)
 
 ## [5주차] 🐳 Docker - 로컬
-### 0. 도커 컨테이너 통신하기
-* 도커는 기본적으로 독립적인 환경에서 실행되기 때문에 컨테이너 밖에서 접근할 수 없다 
+### Docker
+#### Docker Architecture
+![Docker Architecture](https://github.com/yoonsseo/spring-docker/assets/90557277/201c8228-b04e-483f-8d6b-3417dfe34cb4)
+* `Docker client` : 도커 설치했을 때 그게 바로 client이고, build, pull, run 등의 도커 명령어 수행
+* `DOCKER_HOST` : 도커가 띄어져있는 서버 의미, `DOCKER_HOST`에서 컨테이너와 이미지 관리
+* `Docker daemon` : 도커 엔진
+* `Registry` : 외부(remote) 이미지 저장소로 다른 사람들이 공유한 이미지를 내부(local) 도커 호스트에 pull할 수 있다
+  * 이렇게 가져온 이미지를 run하면 컨테이너가 됨
+  * public 저장소 : Docker Hub, QUAY
+  * private 저장소 : AWS 또는 Docker Registry 직접 띄워서 비공개로 사용 
 
+#### Docker Image와 Container
+* 도커 엔진에서 사용하는 기본단위, 도커 엔진의 핵심
+* 도커 이미지와 컨테이너는 `1:N` 관계
+* 도커 이미지와 컨테이너의 관계는 운영체제에서의 프로그램-프로세스, 객체지향 프로그래밍에서의 클래스-인스턴스 관계
+
+
+![도커 이미지와 컨테이너](https://github.com/yoonsseo/spring-docker/assets/90557277/89747c05-2c77-4b70-8e32-838abd627ee2)
+* `Docker File → Docker Image`
+  * `docker build` 명령어로 Docker File을 통해 Docker Image 생성
+* `Docker Image → Docker Container`
+  * Docker Image를 `docker run`으로 실행시켜 Docker Container 생성
+
+
+* **Docker Image**
+  * 컨테이너를 생성할 때 필요한 요소
+  ```dockerfile
+  [저장소 이름]/[이미지 이름]:[태그]
+  ```
+  * `저장소 이름` : 이미지가 저장된 장소, 저장소 이름이 명시되지 않은 이미지는 도커 허브의 공식 이미지를 똣한다
+  * `이미지 이름` : 해당 이미지가 어떤 역할을 하는지 나타내고 필수로 설정해야 한다
+    * ex. `ubuntu:latest` : 우분투 컨테이너를 생성하기 위한 이미지
+  * `태그` : 이미지의 버전을 나타내고, 생략 시 도커 엔진은 `latest`로 인식
+
+
+* **Docker Container**
+  * 도커 이미지로 생성할 수 있다
+  * 컨테이너를 생성하면 해당 이미지의 목적에 맞는 파일이 들어 있는, 호스트와 다른 컨테이너로부터 격리된 시스템 자원 및 네트워크를 사용할 수 있는 독립된 공간(프로세스)이 생성된다
+  * 대부분의 도커 컨테이너는 생성될 때 사용된 도커 이미지의 종류에 따라 알맞은 설정과 파일을 가지고 있기 때문에 도커 이미지의 목적에 맞도록 사용되는 것이 일반적
+  * 컨테이너는 이미지를 읽기 전용으로 사용하고, 이미지에서 변경된 사항만 컨테이너 계층에 저장하므로 컨테이너에서 무엇을 하든지 원래 이미지는 영향을 받지 않는다
+  * 생성된 각 컨테이너는 각기 독립된 파일시스템을 제공받고 호스트와 분리되어 있어, 특정 컨테이너에서 어떤 어플리케이션을 설치하거나 삭제해도 다른 컨테이너와 호스트는 변화가 없다   
+    * ex. 같은 도커 이미지로 A, B 두 개의 컨테이너를 생성한 뒤에 A 컨테이너를 수정해도 B 컨테이너에는 영향을 주지 않는다 
+
+
+### 0. 도커 컨테이너 통신하기
+* 도커는 기본적으로 독립적인 환경에서 실행되기 때문에 컨테이너 밖에서 접근할 수 없다
 
 * 컨테이너와 통신하기 위해서는 컨테이너를 가동시키면서 `-p` 옵션을 사용해 호스트의 포트와 컨테이너의 포트를 설정해야 한다
 ```shell
@@ -1219,7 +1262,16 @@ ENTRYPOINT ["java","-jar", "/app.jar"]
 #이 경우, Java로 JAR 파일을 실행하는 명령어 지정
 ```
 
-### 🚨 DB 연결 안 되는 문제 🤯
+### 🚨 DB 연결 안 되는 문제 🤯😣😡🫠😱🥹🥺 
+1. jdbc 의존성 추가 → 아님
+```java
+implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+```
+
+2. mysql 비밀번호 강화 : 대소문자, 숫자, 특수문자 조합 → 아님
+
+
+3. `application.yml`에서 spring datasource url 설정 변경 → 해결 
 ![applicationYML](https://github.com/yoonsseo/spring-docker/assets/90557277/c2b7f348-6b59-40eb-aa5f-1625e3911472)
 * `application.yml`에서 `host.docker.internal:3306` 으로 연결 
 
@@ -1294,7 +1346,7 @@ services:
     volumes: # 호스트 시스템과 컨테이너 간에 데이터를 공유하기 위한 볼륨 설정
       - dbdata:/var/lib/mysql # MySQL 데이터 디렉토리를 호스트 시스템의 dbdata 볼륨과 연결
     ports: # 호스트 시스템과 컨테이너 간의 포트 매핑을 설정
-      - 3306:3306 # MySQL의 3306 포트를 호스트의 3306 포트와 연결
+      - 3307:3306 # 호스트의 3307 포트를 컨테이너 내의 3306 포트로 매핑
     restart: always # 컨테이너가 종료될 때 항상 다시 시작하도록 설정
 
   web:
@@ -1320,14 +1372,14 @@ volumes:
 |---|---|---|
 |![컨테이너](https://github.com/yoonsseo/spring-docker/assets/90557277/7faf911b-4d28-4dd7-b7de-037d12c8916e)|![이미지](https://github.com/yoonsseo/spring-docker/assets/90557277/5cb9aafd-ae0e-4843-8477-593f9fee4690)|![볼륨](https://github.com/yoonsseo/spring-docker/assets/90557277/3cb27d1a-702f-45d6-bd6f-d425e057727b)|
 
-### 3. 
+### 3. AWS 
 #### 3.1. root 계정으로 이동하고 git clone 해주기
 ![도커 중간](https://github.com/yoonsseo/spring-docker/assets/90557277/6c98a304-873d-4d1e-85b0-0415097e081f)
 
 #### 3.2. java 설치
 ![자바없음](https://github.com/yoonsseo/spring-docker/assets/90557277/9ea2721a-f44a-4e0b-a374-e8af6dfe8f8f)
 
-#### 3.3. 
+#### 3.3. gralew 빌드
 ![sh gradlew build](https://github.com/yoonsseo/spring-docker/assets/90557277/d37b67a0-5d6b-4f58-aeec-b72bf068bd55)
 
 ![sh gradlew](https://github.com/yoonsseo/spring-docker/assets/90557277/714754dd-68ad-4c57-914c-3b4f3d2d479f)
@@ -1367,3 +1419,4 @@ volumes:
 ### 4. API 추가
 #### 4.1. 사용자 프로필 불러오기
 #### 4.2. Spring Security 자잘한 수정
+* 에러 처리와 허용 url
