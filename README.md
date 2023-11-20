@@ -1418,5 +1418,8 @@ volumes:
 
 ### 4. API 추가
 #### 4.1. 사용자 프로필 불러오기
+* `GET` : `/api/v1/users/profile` - `getUserInfo()`
 #### 4.2. Spring Security 자잘한 수정
-* 에러 처리와 허용 url
+* 에러 처리와 허용 url 수정 
+#### 4.3. 리뷰 등록하기 
+* `POST` : `/api/v1/review/create` - `createReview()`
