@@ -1372,7 +1372,7 @@ volumes:
 |---|---|---|
 |![컨테이너](https://github.com/yoonsseo/spring-docker/assets/90557277/7faf911b-4d28-4dd7-b7de-037d12c8916e)|![이미지](https://github.com/yoonsseo/spring-docker/assets/90557277/5cb9aafd-ae0e-4843-8477-593f9fee4690)|![볼륨](https://github.com/yoonsseo/spring-docker/assets/90557277/3cb27d1a-702f-45d6-bd6f-d425e057727b)|
 
-### 3. AWS 
+### 3. AWS - 완전 간단 버전..
 #### 3.1. root 계정으로 이동하고 git clone 해주기
 ![도커 중간](https://github.com/yoonsseo/spring-docker/assets/90557277/6c98a304-873d-4d1e-85b0-0415097e081f)
 
@@ -1423,3 +1423,81 @@ volumes:
 * 에러 처리와 허용 url 수정 
 #### 4.3. 리뷰 등록하기 
 * `POST` : `/api/v1/review/create` - `createReview()`
+
+## [6주차] Github Action을 이용한 CI/CD
+### 1. AWS - 회원가입과 MFA, Budget Alarm, Region(SEOUL) 설정
+![MFA](https://github.com/yoonsseo/spring-docker/assets/90557277/ee34ba1a-c107-4510-b1ca-48b482342149)
+![budget alert](https://github.com/yoonsseo/spring-docker/assets/90557277/af40335f-7f81-4166-8999-67ee14dc6704)
+
+### 2. EC2 : Elastic Compute Cloud
+#### 2.1. 보안 그룹 생성
+![보안그룹1](https://github.com/yoonsseo/spring-docker/assets/90557277/935decd7-475c-48df-94de-58e6382c130b)
+
+* VPC는 기본 default 이용함
+
+![인바운드규칙](https://github.com/yoonsseo/spring-docker/assets/90557277/2c8c5e70-cb20-4a4e-8c96-9d82e748257c)
+* `SSH`, `HTTP`, `HTTPS`, `MYSQL` 에 대해 IPv4와 IPv6 모두 설정해줌
+
+
+* 설정 끝 **보안 그룹 생성** 클릭
+
+
+![보안 그룹 생성 결과](https://github.com/yoonsseo/spring-docker/assets/90557277/d64aacdb-ce98-4161-8a74-07141348dd15)
+
+
+#### 2.2. EC2 인스턴스 생성
+![ec2이름](https://github.com/yoonsseo/spring-docker/assets/90557277/7816a6b4-138d-44f6-bb4a-00ffc26b1d60)
+![ec2설정1](https://github.com/yoonsseo/spring-docker/assets/90557277/5121f03c-549a-42ec-9107-8fb063c5937d)
+![ec2설정2](https://github.com/yoonsseo/spring-docker/assets/90557277/a5b9c079-53f0-4a27-98a1-d33040f13fdb)
+![ec2key](https://github.com/yoonsseo/spring-docker/assets/90557277/dae0a126-01d0-4bf6-a7e9-c468b1445bcc)
+* 다음과 같이 새 키 페어 생성해줌  
+* 생성해준 키 페어는 `C:\Users\yoonsseo\.ssh\ceos_dangn.pem` 경로에 저장해 줌 
+
+![ec2key 생성](https://github.com/yoonsseo/spring-docker/assets/90557277/0b70521f-a637-4acd-9f93-897388f672b2)
+![ec2 보안그룹 연결](https://github.com/yoonsseo/spring-docker/assets/90557277/c14237ad-9617-4d14-be60-91642c074c6b)
+* 앞에서 만들어놨던 보안 그룹 연결
+
+![볼륨](https://github.com/yoonsseo/spring-docker/assets/90557277/d00beb2b-f25b-448f-ae4c-f1f4245b1a1b)
+* 스토리지 크기는 30GB (프리티어 가능 최대 용량)로 설정해줌
+
+
+![ec2 생성 완료](https://github.com/yoonsseo/spring-docker/assets/90557277/cee7c357-6041-40a1-9060-14c5aae0529b)
+* EC2 생성 확인
+
+#### 2.3. 탄력적 IP 주소 할당 및 연결
+![탄력1](https://github.com/yoonsseo/spring-docker/assets/90557277/3fc6d849-3161-40f1-a4b2-a4ee679554e3)
+![탄력2](https://github.com/yoonsseo/spring-docker/assets/90557277/6f966b5f-dc8f-43d9-9865-74819f3327de)
+
+### 3. RDS
+#### 3.0. 오류
+* 아래와 같은 오류가 떠서 서브넷이랑 서브넷 그룹 설정해줌 
+![오류1](https://github.com/yoonsseo/spring-docker/assets/90557277/f348b41a-aab7-457a-a66a-e517f015be9f)
+
+#### 3.1. VPC 서브넷 
+![subnet0](https://github.com/yoonsseo/spring-docker/assets/90557277/972599b8-0d39-4457-8f1b-0acc43c1f8d4)
+![subnet2](https://github.com/yoonsseo/spring-docker/assets/90557277/832779bf-5623-4478-b9d6-f7ce9759da1c)
+
+#### 3.2. 서브넷 그룹
+![서브넷그룸1](https://github.com/yoonsseo/spring-docker/assets/90557277/b25274bc-0a4e-4758-a41b-a13a71bc79db)
+![서브넷그룹2](https://github.com/yoonsseo/spring-docker/assets/90557277/73304a49-e85b-4319-8f94-6c5c90d16864)
+
+#### 3.3. RDS
+![RDS0](https://github.com/yoonsseo/spring-docker/assets/90557277/be739c46-82aa-49bb-b2ba-054a0e176cd1)
+![RDS1](https://github.com/yoonsseo/spring-docker/assets/90557277/e4b47096-ec9b-499c-9652-06ee6921621c)
+![RDS2](https://github.com/yoonsseo/spring-docker/assets/90557277/b5cb961a-66da-4297-9efd-d107833ecaa5)
+![rds3](https://github.com/yoonsseo/spring-docker/assets/90557277/a921cb89-ca41-4db0-9c36-eb8a93253083)
+* 마스터 사용자 이름과 암호는 나중에 DB 연결 시 사용
+
+![RDS4](https://github.com/yoonsseo/spring-docker/assets/90557277/e0ff9375-b0b7-4cfc-888e-76a032f8645a)
+* 위 템플릿에서 프리티어 선택했기 때문에 가능한 옵션 아무거나 선택
+
+![RDS5](https://github.com/yoonsseo/spring-docker/assets/90557277/60cbdc05-4433-45c5-950b-12141e172efc)
+* 스토리지 용량은 20GB, 스토리지 자동 조정을 비활성화 (의도치 않은 과금 방지)
+
+
+![RDS6](https://github.com/yoonsseo/spring-docker/assets/90557277/9f90e72e-896d-4083-b8d4-b814c656704f)
+![RDS7](https://github.com/yoonsseo/spring-docker/assets/90557277/56081025-1033-4e4a-a536-21127ac682c7)
+![RDS8](https://github.com/yoonsseo/spring-docker/assets/90557277/c89f4829-2d08-4ffa-8afd-68a96e60e455)
+* 따로 설정하지 않음
+
+
