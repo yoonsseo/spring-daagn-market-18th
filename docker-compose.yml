@@ -29,3 +29,27 @@ services:
 volumes:
   app: # 호스트 시스템과 web 컨테이너 간에 데이터를 공유하기 위한 볼륨
   dbdata: # 호스트 시스템과 db 컨테이너 간에 MySQL 데이터를 공유하기 위한 볼륨
+
+version: '3'
+
+services:
+  backend:
+    container_name: dangn_backend
+    image: dangn_
+    env_file:
+      - .env
+    expose:
+      - 8080
+    ports:
+      - 8080:8080
+    tty: true
+    environment:
+      - TZ=Asia/Seoul
+
+  nginx:
+    container_name: dangn_nginx
+    image: my-repo/my-nignx-image
+    ports:
+      - 80:80
+    depends_on:
+      - web

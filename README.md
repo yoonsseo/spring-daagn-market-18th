@@ -1500,4 +1500,280 @@ volumes:
 ![RDS8](https://github.com/yoonsseo/spring-docker/assets/90557277/c89f4829-2d08-4ffa-8afd-68a96e60e455)
 * 따로 설정하지 않음
 
+### 4. Github Action
+#### 4.1. Core 개념
+1. Workflow  
+* 자동화된 전체 프로세스로, 하나 이상의 Job으로 구성되고, Event에 의해 예약되거나 트리거될 수 있는 자동화된 절차를 말한다  
+* Workflow 파일은 YAML으로 작성되고, Github Repository의 .github/workflows 폴더 아래에 저장된다
+* Github에게 YAML 파일로 정의한 자동화 동작을 전달하면, Github Actions는 해당 파일을 기반으로 그대로 실행시킨다
 
+2. Event
+* Workflow를 트리거(실행)하는 특정 활동이나 규칙
+* 예를 들어, 누군가가 커밋을 리포지토리에 푸시하거나 풀 요청이 생성 될 때 GitHub에서 활동이 시작될 수 있다
+
+3. Job
+* Job은 여러 Step으로 구성되고, 단일 가상 환경에서 실행된다
+* 다른 Job에 의존 관계를 가질 수도 있고, 독립적으로 병렬로 실행될 수도 있다
+
+4. Step
+* Job 안에서 순차적으로 실행되는 프로세스 단위
+* Step에서 명령을 내리거나, Action을 실행할 수 있다.
+
+5. Action
+* Job을 구성하기 위한 Step들의 조합으로 구성된 독립적인 명령
+* Workflow의 가장 작은 빌드 단위
+* Workflow에서 Action을 사용하기 위해서는 Action이 Step을 포함해야 한다
+* Action을 구성하기 위해서 레포지토리와 상호작용하는 커스텀 코드를 만들 수도 있다
+* 사용자가 직접 커스터마이징하거나, 마켓플레이스에 있는 Action을 가져다 사용할 수도 있다
+
+6. Runner
+* Gitbub Action Runner 어플리케이션이 설치된 머신으로, Workflow가 실행될 인스턴스
+
+#### 4.2. .github/workflows/gradle.yml
+##### 4.2.1. name
+* 깃헙 레포지토리의 액션 탭에 노출되는 **Workflow의 이름**으로 옵셔널한 값
+```yaml
+name: Deploy Development Server
+```
+
+##### 4.2.2. on 
+* 어떤 조건에 Workflow를 자동으로 Trigger 시킬지 Event 명시
+* push(Branch or Tag), pull_request, schedule을 사용할 수 있다
+  * `push` 이벤트를 명시하면, 누군가가 깃 레포지토리에 변경사항을 push 하는 시점마다 job이 실행된다
+* 단일 Event를 사용할 수도 있고, array로 작성할 수도 있다
+```yaml
+on: push
+# 또는
+on: [pull_request, issues]
+```
+```yaml
+## develop 브랜치에 push가 되면 실행됩니다
+on:
+  push:
+    branches: [ "develop" ]
+```
+* 특정한 브랜치나, tag, 또는 path에서만 실행되도록 할 수도 있고,  
+  아래 예시와 같이 `paths`로 특정 패턴을 설정하여 해당 패턴에 일치하는 파일이 변경되었을 때 Workflow가 실행되도록 하고,  
+  `!paths`나 `paths-ignore`를 사용하여 무시할 패턴을 설정할 수도 있다
+```yaml
+on:
+    push:
+      branches: [ master, dev ]
+    pull_request:
+      branches: [ master ]
+      paths:
+        - "**.js"
+      paths-ignore:
+        - "doc/**"
+```
+
+##### 4.2.3. permissions
+* 워크 플로우가 깃 레포에 대한 권한을 읽기만 가능하게 설정한다.
+```yaml
+permissions:
+  contents: read
+```
+
+##### 4.2.4. jobs
+```yaml
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: checkout
+        uses: actions/checkout@v3
+
+      ## 여러분이 사용하는 버전을 사용하세요
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      ## gradle build
+      - name: Build with Gradle
+        run: ./gradlew bootJar
+```
+* `build` 라는 `job`을 생성하고, 그 아래에 3개의 `step`이 존재하는 구조
+* `runs-on`: 어느 운영체제에서 `job`을 실행할 지 지정
+* `uses` : 어떤 액션을 사용할 지 지정
+  * 이미 만들어진 action(제 3자가 만든 action)을 사용할 때 지정      
+  * `actions/checkout@v3` : 우리의 branch를 현재 비어있는 ubuntu에 내려받도록 함
+  * `actions/setup-java@v3` : java 다운받기
+* `run` : bash에서 실행할 명령어를 정의
+  * `chmod +x gradlew` : gradlew 실행할 권한 부여
+  * `./gradlew build` : 해당 java 코드 빌드
+
+```yaml
+## 웹 이미지 빌드 및 도커허브에 push
+      - name: web docker build and push
+        run: |
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+          docker build -t my-repo/my-web-image .
+          docker push my-repo/my-web-image
+          docker build -f dockerfile-nginx -t my-repo/my-nginx-image .
+          docker push my-repo/my-nginx-image
+
+      - name: executing remote ssh commands using password
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ubuntu
+          key: ${{ secrets.KEY }}
+          script: |
+          
+          ## 여러분이 원하는 경로로 이동합니다.
+            cd /home/ubuntu/
+            
+          ## .env 파일을 생성합니다.
+            sudo touch .env
+            echo "${{ secrets.ENV_VARS }}" | sudo tee .env > /dev/null
+          
+          ## docker-compose.yaml 파일을 생성합니다.
+            sudo touch docker-compose.yaml
+            echo "${{ vars.DOCKER_COMPOSE }}" | sudo tee docker-compose.yaml > /dev/null
+            
+          ## docker-compose를 실행합니다.
+            sudo chmod 666 /var/run/docker.sock
+            sudo docker rm -f $(docker ps -qa)
+            sudo docker pull my-repo/my-web-image
+            sudo docker pull my-repo/my-nginx-image
+            docker-compose -f docker-compose.yaml --env-file ./.env up -d
+            docker image prune -f
+```
+* 도커 관련 스크립트
+
+#### 4.3. secrets와 variables 등록
+1. **`DOCKER_USERNAME`** : 도커 계정 유저네임
+
+
+2. **`DOCKER_PASSWORD`** : 도커 계정 비밀번호
+
+
+3. **`HOST`** : EC2의 퍼블릭 IPv4 DNS
+![EC2 주소](https://github.com/yoonsseo/spring-docker/assets/90557277/7727c848-5eb1-4323-8845-925f5296db5c)
+
+
+4. **`KEY`** : EC2를 생성하며 같이 생성했던 .pem 파일의 내용  
+  - 이 때, `-----BEGIN`부터 `END ... KEY-----`까지 입력해주어야 한다
+    ```bash
+    -----BEGIN RSA PRIVATE KEY-----
+    MIIEowIBAAKCAQEAidvIJTS/UYMxf3G5fWC3tPkHiD35xttdsez++y2EO5vWKtpE
+    wHcNCeHzwKiadand2VLDNnKi8/r+e3oPRrDCKQI8he5siDs6qyZuHOm2qd+jiQ+S
+    ZeD
+    ...
+    7Kzfn3eqHh+sMt4t9iX8
+    gdO2R6Z0TI3dfFpNKJU2WehZ7TZEA3qDJNqTg7008IJaUcuAEeWULtDwiwx/hkZ7
+    9kt5/TEA8jEoJw4gPakNlfEPEsQ2Sv7zpPPquZEGTqIjWXVMvPE0
+    -----END RSA PRIVATE KEY-----
+    ```
+  
+5. **`ENV_VARS`** : 환경 변수를 key-value로 담아둔다 
+  - `=` 을 기준으로 좌측이 key, 우측이 value
+  ```bash
+  DB_URL=jdbc:mysql://ceos-dangn-rds.cp0xntend9ra.ap-northeast-2.rds.amazonaws.com:3306/ceos-dangn-rds
+  DB_USERNAME=root
+  DB_PASSWORD=blahblah
+  ```
+
+  - 저장해둔 환경변수 사용하기 : application.yaml
+
+  ```bash
+  spring:
+    datasource:
+  	  driver-class-name: com.mysql.cj.jdbc.Driver
+  	  url: ${DB_URL}
+  	  username: ${DB_USERNAME}
+  	  password: ${DB_PASSWORD}
+  	  hikari:
+  	      maximum-pool-size: 10
+  ```
+
+6. **`DOCKER_COMPOSE`** : docker-compose.yaml 를 생성할 때 참고하는 **변수**
+    - 위의 secrets과는 다르게 변수로 등록
+    - docker-compose 파일 작성 후 레포지토리 변수로 등록
+
+#### 4.4. dockerfile과 docker-compose, nginx.conf
+##### 4.4.1. Dockerfile
+```dockerfile
+FROM openjdk:17
+ARG JAR_FILE=/build/libs/*.jar
+COPY ${JAR_FILE} app.jar
+ENTRYPOINT ["java","-jar", "/app.jar"]
+```
+##### 4.4.2. dockerfile-nginx
+```dockerfile
+FROM nginx 
+# 기본 Nginx 이미지 사용
+RUN rm -rf /etc/nginx/conf.d/default.conf \
+# 기본 Nginx 설정 파일을 삭제
+COPY ./nginx/conf.d/nginx.conf /etc/nginx/conf.d
+# 호스트 머신의 ./nginx/conf.d/nginx.conf 파일을 컨테이너 내부의 /etc/nginx/conf.d 경로에 복사
+CMD ["nginx", "-g", "daemon off;"]
+# 컨테이너가 시작될 때 실행될 명령 정의
+```
+* Nginx를 기반으로 하는 Docker 이미지 정의하는 스크립트 
+* `deamon off` : Nginx는 기본적으로 백그라운드에서 실행되도록 설계되어있는데,  
+  Nginx를 백그라운드에서 동작하지 않고 프로세스를 foreground에서 실행하도록 지정 
+
+
+##### 4.4.3. docker-compose.yml
+```yaml
+version: '3'
+services:
+
+  web:
+    container_name: dangn_web
+    image: my-repo/my-web-image
+    env_file:
+      - .env
+    expose:
+      - 8080
+    ports:
+      - 8080:8080
+    tty: true
+    environment:
+      - TZ=Asia/Seoul
+
+  nginx:
+    container_name: dangn_nginx
+    image: my-repo/my-nignx-image
+    ports:
+      - 80:80
+    depends_on:
+      - web
+```
+
+##### 4.4.4. etc/nginx/conf.d/nginx.conf
+```shell
+server {
+    listen 80;
+    # 이 서버 블록은 80번 포트에서 들어오는 요청을 처리
+    server_name *.compute.amazonaws.com;
+    # 이 서버 블록은 *.compute.amazonaws.com 도메인에 대한 요청을 처리
+    access_log /var/log/nginx/access.log;
+    # 각각 접근 로그와 오류 로그를 기록할 파일 경로를 설정
+    error_log /var/log/nginx/error.log;
+    # 이 블록은 모든 경로에 대한 요청을 처리
+    # 
+    location / {
+        proxy_pass http://web:8080;
+        # proxy_pass 지시문을 사용하여 이 서버가 받은 요청을 http://web:8080 주소로 전달
+        # 여기서 web은 Docker 네트워크 상에서 해당 서비스에 할당된 이름
+        # 서비스가 8080 포트에서 실행 중이라고 가정
+        proxy_set_header Host $host:$server_port;
+        # proxy_set_header : 프록시 서버로 전달될 때 추가적인 HTTP 헤더 설정
+        # 프록시 서버로 전달되는 요청의 Host 헤더 설정 
+        # 프록시 서버는 클라이언트 요청을 백엔드 서버로 전달할 때 원래 호스트 정보를 유지할 수 있다
+        proxy_set_header X-Forwarded-Host $server_name;
+        # 프록시 서버가 클라이언트로부터 받은 원래 호스트 주소를 전달하는 데 사용된다
+        proxy_set_header X-Real-IP $remote_addr;
+        # 클라이언트의 실제 IP 주소를 포함하며, 프록시 서버가 이 정보를 백엔드 서버로 전달할 수 있도록 함
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        # 클라이언트에서 프록시까지의 이전 요청의 IP 주소를 포함
+        # 이를 통해 백엔드 서버는 클라이언트의 원래 IP 주소를 알 수 있다
+    }
+}
+```
+* reverse proxy 역할을 하는 구성
