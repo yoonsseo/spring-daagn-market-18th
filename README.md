@@ -1503,31 +1503,36 @@ volumes:
 ### 4. Github Action
 #### 4.1. Core 개념
 1. Workflow  
-* 자동화된 전체 프로세스로, 하나 이상의 Job으로 구성되고, Event에 의해 예약되거나 트리거될 수 있는 자동화된 절차를 말한다  
-* Workflow 파일은 YAML으로 작성되고, Github Repository의 .github/workflows 폴더 아래에 저장된다
-* Github에게 YAML 파일로 정의한 자동화 동작을 전달하면, Github Actions는 해당 파일을 기반으로 그대로 실행시킨다
+   * 자동화된 전체 프로세스로, 하나 이상의 Job으로 구성되고, Event에 의해 예약되거나 트리거될 수 있는 자동화된 절차를 말한다  
+   * Workflow 파일은 YAML으로 작성되고, Github Repository의 .github/workflows 폴더 아래에 저장된다
+   * Github에게 YAML 파일로 정의한 자동화 동작을 전달하면, Github Actions는 해당 파일을 기반으로 그대로 실행시킨다
+
 
 2. Event
-* Workflow를 트리거(실행)하는 특정 활동이나 규칙
-* 예를 들어, 누군가가 커밋을 리포지토리에 푸시하거나 풀 요청이 생성 될 때 GitHub에서 활동이 시작될 수 있다
+   * Workflow를 트리거(실행)하는 특정 활동이나 규칙
+   * 예를 들어, 누군가가 커밋을 리포지토리에 푸시하거나 풀 요청이 생성 될 때 GitHub에서 활동이 시작될 수 있다
+
 
 3. Job
-* Job은 여러 Step으로 구성되고, 단일 가상 환경에서 실행된다
-* 다른 Job에 의존 관계를 가질 수도 있고, 독립적으로 병렬로 실행될 수도 있다
+   * Job은 여러 Step으로 구성되고, 단일 가상 환경에서 실행된다
+   * 다른 Job에 의존 관계를 가질 수도 있고, 독립적으로 병렬로 실행될 수도 있다
+
 
 4. Step
-* Job 안에서 순차적으로 실행되는 프로세스 단위
-* Step에서 명령을 내리거나, Action을 실행할 수 있다.
+   * Job 안에서 순차적으로 실행되는 프로세스 단위
+   * Step에서 명령을 내리거나, Action을 실행할 수 있다.
+
 
 5. Action
-* Job을 구성하기 위한 Step들의 조합으로 구성된 독립적인 명령
-* Workflow의 가장 작은 빌드 단위
-* Workflow에서 Action을 사용하기 위해서는 Action이 Step을 포함해야 한다
-* Action을 구성하기 위해서 레포지토리와 상호작용하는 커스텀 코드를 만들 수도 있다
-* 사용자가 직접 커스터마이징하거나, 마켓플레이스에 있는 Action을 가져다 사용할 수도 있다
+   * Job을 구성하기 위한 Step들의 조합으로 구성된 독립적인 명령
+   * Workflow의 가장 작은 빌드 단위
+   * Workflow에서 Action을 사용하기 위해서는 Action이 Step을 포함해야 한다
+   * Action을 구성하기 위해서 레포지토리와 상호작용하는 커스텀 코드를 만들 수도 있다
+   * 사용자가 직접 커스터마이징하거나, 마켓플레이스에 있는 Action을 가져다 사용할 수도 있다
+
 
 6. Runner
-* Gitbub Action Runner 어플리케이션이 설치된 머신으로, Workflow가 실행될 인스턴스
+   * Gitbub Action Runner 어플리케이션이 설치된 머신으로, Workflow가 실행될 인스턴스
 
 #### 4.2. .github/workflows/gradle.yml
 ##### 4.2.1. name
@@ -1568,7 +1573,7 @@ on:
 ```
 
 ##### 4.2.3. permissions
-* 워크 플로우가 깃 레포에 대한 권한을 읽기만 가능하게 설정한다.
+* 워크 플로우가 깃 레포에 대한 권한을 읽기만 가능하게 설정한다
 ```yaml
 permissions:
   contents: read
