@@ -46,6 +46,6 @@ secrets.yml
 #.gradle
 
 HELP.md
-*.properties
+#*.properties
 
 /src/main/resources/application.yml
