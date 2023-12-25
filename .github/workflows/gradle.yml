@@ -37,7 +37,6 @@ jobs:
           mkdir -p src/main/resources
           echo "${{ secrets.APPLICATION_YML }}" | base64 --decode > src/main/resources/application.yml
           find src
-        shell: bash
 
 #      ## gradle build
 #      - name: Build with Gradle
