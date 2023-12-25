@@ -67,6 +67,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.PEM_KEY }}
           script: |
+            sudo chmod 666 /var/run/docker.sock
             sudo docker rm $(sudo docker ps -a)
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/ceos18dangn
             docker-compose up -d
