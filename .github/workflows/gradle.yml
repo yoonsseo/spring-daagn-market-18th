@@ -31,10 +31,11 @@ jobs:
           sudo service ntp start
 
       - name: Set APPLICATION.YML
-        run: |
-          mkdir -p src/main/resources
-          echo "${{ secrets.APPLICATION_YML }}" | base64 --decode > src/main/resources/application.yml
-          find src
+        run: |       
+          cd ./src/main/resources
+          touch ./application.yml
+          echo "${{ secrets.APPLICATION_YML }}" >> ./application.yml
+        shell: bash
 
 #      ## gradle build
 #      - name: Build with Gradle
@@ -44,15 +45,14 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Build with Gradle
-        run: ./gradlew bootJar
-#        ./gradlew build -x test
+        run: ./gradlew build -x test # test 빼고 JAR 생성
+#        ./gradlew bootJar
 
       - name: Login to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-
 
       ## 웹 이미지 빌드 및 도커허브에 push
       - name: Docker Image Build and Push
@@ -61,14 +61,37 @@ jobs:
           docker tag app ${{ secrets.DOCKER_USERNAME }}/ceos18dangn:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/ceos18dangn:latest
 
-      - name: executing remote ssh commands using password
+      - name: Deploy to EC2
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_PUBLIC_DNS }}
           username: ubuntu
           key: ${{ secrets.PEM_KEY }}
           script: |
-            docker pull ${{ secrets.DOCKER_USERNAME }}/ceos18dangn:latest
-            docker stop $(docker ps -a -q)
+            sudo docker rm $(sudo docker ps -a)
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/ceos18dangn
             docker-compose up -d
-            docker image prune -a -f
+            sudo docker image prune -f
+
+#            cd /home/ubuntu/
+#
+#            sudo touch docker-compose.yml
+#            echo "${{ secrets.DOCKER_COMPOSE }}" | sudo tee docker-compose.yml > /dev/null
+#
+##           ## docker-compose 실행
+#            sudo chmod 666 /var/run/docker.sock
+#            # 현재 사용자에게 Docker 소켓에 대한 읽기 및 쓰기 권한 부여
+#            sudo docker rm -f $(docker ps -qa)
+#            # docker ps -qa : 현재 실행 중인 모든 컨테이너의 ID 반환
+#            # -f 옵션으로 모든 컨테이너 강제로 중지하고 제거
+#            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/ceos18dangn
+#            # Docker Hub에서 해당 이미지 가져오기
+#            docker-compose -f docker-compose.yml up -d
+#            #docker-compose -f docker-compose.yml --env-file ./.env up -d
+#            docker image prune -f
+#            # 사용하지 않는 모든 Docker 이미지 강제로 삭제
+
+#            docker pull ${{ secrets.DOCKER_USERNAME }}/ceos18dangn:latest
+#            docker stop $(docker ps -a -q)
+#            docker-compose up -d
+#            docker image prune -a -f
