@@ -36,10 +36,6 @@ jobs:
           echo "${{ secrets.APPLICATION_YML }}" | base64 --decode > src/main/resources/application.yml
           find src
 
-#      ## gradle build
-#      - name: Build with Gradle
-#        run: ./gradlew bootJar
-
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
@@ -53,12 +49,10 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      ## 웹 이미지 빌드 및 도커허브에 push
       - name: Docker Image Build and Push
         run: |
-          docker build -t app -f Dockerfile .
-          docker tag app ${{ secrets.DOCKER_USERNAME }}/ceos18dangn:latest
-          docker push ${{ secrets.DOCKER_USERNAME }}/ceos18dangn:latest
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/ceos18dangn .
+          docker push ${{ secrets.DOCKER_USERNAME }}/ceos18dangn
 
       - name: Deploy to EC2
         uses: appleboy/ssh-action@master
@@ -73,7 +67,7 @@ jobs:
             echo "${{ vars.DOCKER_COMPOSE }}" | sudo tee docker-compose.yml > /dev/null
 
             sudo chmod 666 /var/run/docker.sock
-            sudo docker rm $(sudo docker ps -a)
+            sudo docker rm -f $(sudo docker ps -qa)
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/ceos18dangn
             docker-compose -f docker-compose.yml up -d
             docker image prune -f
