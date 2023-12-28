@@ -69,11 +69,9 @@ jobs:
           script: |
             cd /home/ubuntu/
 
-#           ## docker-compose.yml 생성
             sudo touch docker-compose.yml
             echo "${{ vars.DOCKER_COMPOSE }}" | sudo tee docker-compose.yml > /dev/null
 
-#           ## docker-compose.yml 실행
             sudo chmod 666 /var/run/docker.sock
             sudo docker rm $(sudo docker ps -a)
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/ceos18dangn
