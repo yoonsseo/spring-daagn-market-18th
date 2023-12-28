@@ -70,6 +70,7 @@ jobs:
             sudo docker rm -f $(sudo docker ps -qa)
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/ceos18dangn
             docker-compose -f docker-compose.yml up -d
+            docker run -d -p 8080:8080 --name ceos_container yoonsseo/ceos18dangn
             docker image prune -f
 
 #            cd /home/ubuntu/
