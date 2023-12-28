@@ -1786,21 +1786,62 @@ server {
 
 ### 5. 트러블 슈팅
 #### 5.1. 수동으로 실행..
-![image](https://github.com/yoonsseo/spring-docker/assets/90557277/fddb9535-c5a8-4e73-8696-48b2f62e5404)
-1. 깃허브 액션에서는 빌드 성공으로 초록불이 뜨는데 `docker ps` 하면 아무것도 안 뜬다
+![image](https://github.com/yoonsseo/spring-docker/assets/90557277/fddb9535-c5a8-4e73-8696-48b2f62e5404)  
+1. 깃허브 액션에서는 빌드 성공으로 초록불이 뜨는데 `docker ps` 하면 아무것도 안 뜬다  
 
-![image](https://github.com/yoonsseo/spring-docker/assets/90557277/e5d6f230-bc1a-4c7b-9d30-e7a88b87e191)
+
+![image](https://github.com/yoonsseo/spring-docker/assets/90557277/e5d6f230-bc1a-4c7b-9d30-e7a88b87e191)  
 2. `docker images`로 도커 이미지 확인
+
 
 ```shell
 docker run -d -p 8080:8080 --name my_ceos_container yoonsseo/ceos18dangn
 ```
-3. `-d` 옵션이랑 `-p` 옵션을 이용해 백그라운드로 실행 하고 8080으로 맵핑
+3. `-d` 옵션이랑 `-p` 옵션을 이용해 백그라운드로 실행 하고 8080으로 매핑
+
 
 ![image](https://github.com/yoonsseo/spring-docker/assets/90557277/292499db-1e50-478c-a7a3-8057ff9c4d77)
-4. 이제 `docker ps` 하면 컨테이너 목록 확인할 수 있다  
+4. 이제 `docker ps` 하면 컨테이너 목록 확인할 수 있다 
+
 
 ![image](https://github.com/yoonsseo/spring-docker/assets/90557277/1ab0c39a-9c3b-4c1a-b9b3-3cbbc04e8564)
 ![image](https://github.com/yoonsseo/spring-docker/assets/90557277/7f6b82c5-2ec9-40ab-9a60-5ef1d1d36660)
-4. 포스트맨이랑 MySql에서도 잘 돌아간당
+5. 포스트맨이랑 MySql에서 확인  
 
+
+
+#### 5.2. 자동으로 실행
+1. `gradle.yml` 워크플로우에 위에서 수동으로 입력해주었던 다음 명령어 추가
+```shell
+docker run -d -p 8080:8080 --name ceos_container yoonsseo/ceos18dangn
+```
+
+```shell
+- name: Deploy to EC2
+  uses: appleboy/ssh-action@master
+  with:
+    host: ${{ secrets.EC2_PUBLIC_DNS }}
+    username: ubuntu
+    key: ${{ secrets.PEM_KEY }}
+    script: |
+      cd /home/ubuntu/
+
+      sudo touch docker-compose.yml
+      echo "${{ vars.DOCKER_COMPOSE }}" | sudo tee docker-compose.yml > /dev/null
+
+      sudo chmod 666 /var/run/docker.sock
+      sudo docker rm -f $(sudo docker ps -qa)
+      sudo docker pull ${{ secrets.DOCKER_USERNAME }}/ceos18dangn
+      docker-compose -f docker-compose.yml up -d
+      docker run -d -p 8080:8080 --name ceos_container yoonsseo/ceos18dangn
+      docker image prune -f
+```
+
+2. 결과
+
+![image](https://github.com/yoonsseo/spring-docker/assets/90557277/8f5bdbbc-de91-4df7-b14b-8b301931735f)
+![image](https://github.com/yoonsseo/spring-docker/assets/90557277/7a76889b-8de4-4e27-9d2f-cb71016244e4)
+![image](https://github.com/yoonsseo/spring-docker/assets/90557277/2cb77333-3040-419d-9028-726d45bbcd98)
+
+
+3. 근데 왜 추가하지 않으면 안 되는 건지는 알 수 없었다..🥹🤯😱🫠🥲😢🥺🫣
