@@ -67,11 +67,18 @@ jobs:
           username: ubuntu
           key: ${{ secrets.PEM_KEY }}
           script: |
+            cd /home/ubuntu/
+
+#           ## docker-compose.yml 생성
+            sudo touch docker-compose.yml
+            echo "${{ vars.DOCKER_COMPOSE }}" | sudo tee docker-compose.yml > /dev/null
+
+#           ## docker-compose.yml 실행
             sudo chmod 666 /var/run/docker.sock
             sudo docker rm $(sudo docker ps -a)
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/ceos18dangn
-            docker-compose up -d
-            sudo docker image prune -f
+            docker-compose -f docker-compose.yml up -d
+            docker image prune -f
 
 #            cd /home/ubuntu/
 #
