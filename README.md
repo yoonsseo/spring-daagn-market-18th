@@ -1782,3 +1782,25 @@ server {
 }
 ```
 * reverse proxy 역할을 하는 구성
+
+
+### 5. 트러블 슈팅
+#### 5.1. 수동으로 실행..
+![image](https://github.com/yoonsseo/spring-docker/assets/90557277/fddb9535-c5a8-4e73-8696-48b2f62e5404)
+1. 깃허브 액션에서는 빌드 성공으로 초록불이 뜨는데 `docker ps` 하면 아무것도 안 뜬다
+
+![image](https://github.com/yoonsseo/spring-docker/assets/90557277/e5d6f230-bc1a-4c7b-9d30-e7a88b87e191)
+2. `docker images`로 도커 이미지 확인
+
+```shell
+docker run -d -p 8080:8080 --name my_ceos_container yoonsseo/ceos18dangn
+```
+3. `-d` 옵션이랑 `-p` 옵션을 이용해 백그라운드로 실행 하고 8080으로 맵핑
+
+![image](https://github.com/yoonsseo/spring-docker/assets/90557277/292499db-1e50-478c-a7a3-8057ff9c4d77)
+4. 이제 `docker ps` 하면 컨테이너 목록 확인할 수 있다  
+
+![image](https://github.com/yoonsseo/spring-docker/assets/90557277/1ab0c39a-9c3b-4c1a-b9b3-3cbbc04e8564)
+![image](https://github.com/yoonsseo/spring-docker/assets/90557277/7f6b82c5-2ec9-40ab-9a60-5ef1d1d36660)
+4. 포스트맨이랑 MySql에서도 잘 돌아간당
+
